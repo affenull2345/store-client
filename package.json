@@ -1,0 +1,23 @@
+{
+  "name": "store-client",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "KaiUI": "github:AdrianMachado/KaiUI",
+    "inferno": "^7.4.8",
+    "inferno-scripts": "7.0.4",
+    "eslint": "5.9.0"
+  },
+  "scripts": {
+    "start": "inferno-scripts start",
+    "build": "inferno-scripts build",
+    "test": "inferno-scripts test",
+    "eject": "inferno-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "inferno-app"
+  },
+  "browserslist": [
+    "firefox 48"
+  ]
+}

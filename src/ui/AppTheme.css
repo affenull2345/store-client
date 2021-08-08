@@ -1,0 +1,6 @@
+.item-selected {
+  background-color: var(--color-blue);
+}
+:root {
+  --tab-underline-color: var(--color-blue);
+}
