@@ -1,0 +1,3 @@
+.Store {
+  height: calc(100% - var(--softkeybar-height));
+}

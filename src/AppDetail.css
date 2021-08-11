@@ -1,0 +1,54 @@
+.AppDetailContainer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.7)
+}
+.AppDetail {
+  position: absolute;
+  top: 10px;
+  bottom: calc(10px + var(--softkeybar-height));
+  left: 10px;
+  right: 10px;
+  color: var(--color-gs00);
+  background: var(--color-purple-pressed);
+  border-radius: 10px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+.AppDetailHeader {
+  width: 100%;
+  height: 70px;
+  background-color: var(--color-purple);
+  background-position: center left;
+  background-repeat: no-repeat;
+  background-size: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  text-align: left;
+  padding-left: 70px;
+  box-sizing: border-box;
+}
+.AppDetailHeader > h3 {
+  font-weight: bold;
+}
+.AppDetailStatus {
+  font-size: 14px;
+}
+.AppDetailBody {
+  padding: 4px;
+}
+.AppDetailMetadata > div {
+  font-size: 16px;
+  display: flex;
+  flex-direction: column;
+  border-top: solid var(--color-gs20) 1px;
+}
+.AppDetailMetadata > div > b {
+  font-size: 16px;
+}

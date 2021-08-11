@@ -1,4 +1,7 @@
 import { Component } from 'inferno';
+import { cloneVNode } from 'inferno-clone-vnode';
+import { findDOMNode } from 'inferno-extras';
+import scrollIntoView from 'smooth-scroll-into-view-if-needed';
 import 'KaiUI/src/components/Tabs/Tabs.scss';
 
 export default class Tabs extends Component {
@@ -6,7 +9,8 @@ export default class Tabs extends Component {
     super(props);
     this.state = {
       index: 0
-    }
+    };
+    this.childRefs = [];
   }
   componentDidMount() {
     document.addEventListener('keydown', this.handleKeyDown.bind(this));
@@ -14,9 +18,17 @@ export default class Tabs extends Component {
   componentWillUnmount() {
     document.removeEventListener('keydown', this.handleKeyDown.bind(this));
   }
+  renderChildren() {
+    return this.props.children.map((tab, i) => {
+      return cloneVNode(tab, {
+        isActive: this.state.index === i,
+        ref: node => this.childRefs[i] = node
+      });
+    });
+  }
   render() {
     return (
-      <div className='kai-tabs'>{this.props.children}</div>
+      <div className='kai-tabs'>{this.renderChildren()}</div>
     );
   }
   handleKeyDown(e){
@@ -41,6 +53,13 @@ export default class Tabs extends Component {
   setTabActive(idx, isActive) {
     if(this.props.children.length > idx){
       this.props.children[idx].props.isActive = isActive;
+      if(isActive && this.childRefs[idx]){
+        scrollIntoView(findDOMNode(this.childRefs[idx]), {
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'center'
+        });
+      }
     }
   }
 }

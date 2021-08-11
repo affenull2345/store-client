@@ -4,6 +4,8 @@
   "type": "certified", 
   "permissions": {
     "tcp-socket": {},
+    "systemXHR": {},
+    "webapps-manage": {},
     "engmode-extension": {}
   },
   "launch_path": "/index.html",

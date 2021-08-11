@@ -1,1 +1,4 @@
-export default class AppStore {}
+class AppStore {}
+class StoreApp {}
+
+export { AppStore, StoreApp }

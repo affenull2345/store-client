@@ -1,4 +1,5 @@
 import { Component } from 'inferno';
+import 'KaiUI/src/views/TabView/TabView.scss';
 import Tabs from './Tabs';
 import Tab from './Tab';
 
@@ -14,13 +15,13 @@ export default class TabView extends Component {
   }
   renderTabs() {
     return this.props.tabLabels.map((tab, i) => (
-      <Tab isActive={i === this.state.active} label={tab} />
+      <Tab label={tab} />
     ));
   }
   renderContent() {
-    if(this.state.active < this.props.children.length)
-      return this.props.children[this.state.active];
-    else return null;
+    return this.props.children.map((child, i) => (
+      i === this.state.active ? child : null
+    ));
   }
   render() {
     return (
