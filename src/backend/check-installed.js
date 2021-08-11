@@ -1,18 +1,14 @@
-const installers = [
-  require('./installer/mozapps-import').default,
-];
+import { installers } from './install-app';
 
-export { installers };
-
-export default async function installApp(app, progress){
+export default async function checkInstalled(app){
   let error = new Error('No installers found');
-  let [method, loader] = app.getInstallationMethod();
+  let [method, loader] = app.getIdentificationMethod();
   for(let i = 0; i < installers.length; i++){
     let result;
     try {
-      result = await loader(progress);
+      result = await loader();
     } catch(e) {
-      console.error('Installation prepare error', e);
+      console.error('CheckInstall prepare error', e);
       error = e;
     }
 
@@ -22,10 +18,9 @@ export default async function installApp(app, progress){
     }
 
     try {
-      console.log(`Trying with <installer #${i}>.${method}`);
       return await installers[i][method].apply(installers[i], result.args);
     } catch(e) {
-      console.error('Install error', e);
+      console.error('CheckInstall error', e);
       error = e;
     }
   }

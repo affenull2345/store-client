@@ -32,6 +32,23 @@ class MozAppsImportInstaller extends Installer {
       }
     });
   }
+  checkInstalled(manifest_url){
+    return new Promise((resolve, reject) => {
+      var req = navigator.mozApps.mgmt.getAll();
+      req.onsuccess = function(){
+        for(var i = 0; i < req.result.length; i++){
+          if(req.result[i].manifestURL === manifest_url){
+            resolve(new MozAppsImportedApp(req.result[i]));
+            return;
+          }
+        }
+        resolve(null);
+      }
+      req.onerror = function(){
+        reject(new Error(req.error.name + ' ' + req.error.message));
+      }
+    });
+  }
 }
 
 const inst = new MozAppsImportInstaller();

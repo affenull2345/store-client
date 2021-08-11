@@ -1,16 +1,11 @@
 import { Component, createPortal } from 'inferno';
 import { findDOMNode } from 'inferno-extras';
 import installApp from './backend/install-app';
+import checkInstalled from './backend/check-installed';
 import SoftKey from './ui/SoftKey';
 import './AppDetail.css';
 
 const modalRoot = document.getElementById('modal-root');
-
-const installers = [
-  //require('./backend/installer/mozapps-install.js'),
-  //require('./backend/installer/self-debug.js'),
-  require('./backend/installer/mozapps-import.js'),
-];
 
 export default class AppDetail extends Component {
   constructor(props) {
@@ -21,13 +16,14 @@ export default class AppDetail extends Component {
     this.state = {
       status: '',
       extendedMetadata: null,
-      installState: 'not-installed'
+      installState: 'unknown'
     };
   }
   open() {
     this.installedApp.open();
   }
   uninstall() {
+    console.log(this.installedApp);
     if(this.state.installState === 'not-installed' || !this.installedApp)
       return;
     if(!window.confirm('Uninstall ' + this.props.app.name + '?')) return;
@@ -53,12 +49,12 @@ export default class AppDetail extends Component {
         installState: this.state.installState
       });
     }).then(app => {
+      this.installedApp = app;
       this.setState({
         status: 'Installed!',
         extendedMetadata: this.state.extendedMetadata,
         installState: 'installed'
       });
-      this.installedApp = app;
     }).catch(err => {
       alert('While installing app: ' + err);
       this.setState({
@@ -137,6 +133,36 @@ export default class AppDetail extends Component {
   }
 
   render() {
+    if(this.state.installState === 'unknown'){
+      checkInstalled(this.props.app).then(app => {
+        if(app){
+          this.installedApp = app;
+          this.setState({
+            status: this.state.status,
+            extendedMetadata: this.state.extendedMetadata,
+            installState: 'installed'
+          });
+        }
+        else {
+          this.setState({
+            status: this.state.status,
+            extendedMetadata: this.state.extendedMetadata,
+            installState: 'not-installed'
+          });
+        }
+      }).catch(e => {
+        this.setState({
+          status: 'Install check failed',
+          extendedMetadata: this.state.extendedMetadata,
+          installState: 'check-failed'
+        });
+      });
+      this.setState({
+        status: this.state.status,
+        extendedMetadata: this.state.extendedMetadata,
+        installState: 'checking'
+      });
+    }
     return createPortal(
       (<>
         <div className='AppDetail' ref={r => this.boxRef = r} >

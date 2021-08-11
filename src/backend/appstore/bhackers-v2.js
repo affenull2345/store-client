@@ -60,7 +60,7 @@ class BHackersV2App extends StoreApp {
   constructor(data){
     super();
     this._data = data;
-    this.blob = null;
+    this.blobPromise = null;
   }
   get name() {
     return this._data.name;
@@ -87,10 +87,10 @@ class BHackersV2App extends StoreApp {
   }
   getInstallationMethod() {
     return ['importPackage', async (reportProgress) => {
-      if(!this.blob){
+      if(!this.blobPromise){
         try {
-          this.blob =
-            await request('GET', this._data.download.url, 'blob', null,
+          this.blobPromise =
+            request('GET', this._data.download.url, 'blob', null,
               (loaded, total) => {
                 reportProgress('Downloading', Math.floor(loaded/total*100));
               });
@@ -98,7 +98,20 @@ class BHackersV2App extends StoreApp {
           return {error: e};
         }
       }
-      return {args: [this.blob]};
+      return {args: [await this.blobPromise]};
+    }];
+  }
+  getIdentificationMethod() {
+    return ['checkImported', async () => {
+      if(!this.blobPromise){
+        try {
+          this.blobPromise =
+            request('GET', this._data.download.url, 'blob', null);
+        } catch(e) {
+          return {error: e};
+        }
+      }
+      return {args: [await this.blobPromise]};
     }];
   }
 }
