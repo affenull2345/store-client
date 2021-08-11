@@ -109,5 +109,6 @@
     "presets": [
       "inferno-app"
     ]
-  }
+  },
+  "license": "Apache-2.0"
 }
