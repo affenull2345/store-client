@@ -6,7 +6,9 @@
     "tcp-socket": {},
     "systemXHR": {},
     "webapps-manage": {},
-    "engmode-extension": {}
+    "engmode-extension": {},
+    "external-api": {},
+    "device-storage:sdcard": {"access":"readwrite"}
   },
   "launch_path": "/index.html",
   "origin": "app://multi.store.bananahackers.net",
