@@ -103,15 +103,11 @@ class BHackersV2App extends StoreApp {
   getInstallationMethod() {
     return ['importPackage', async (reportProgress) => {
       if(!this.blobPromise){
-        try {
-          this.blobPromise =
-            request('GET', this._data.download.url, 'blob', null,
-              (loaded, total) => {
-                reportProgress('Downloading', Math.floor(loaded/total*100));
-              });
-        } catch(e) {
-          return {error: e};
-        }
+        this.blobPromise =
+          request('GET', this._data.download.url, 'blob', null,
+            (loaded, total) => {
+              reportProgress('Downloading', Math.floor(loaded/total*100));
+            });
       }
       return {args: [await this.blobPromise]};
     }];
@@ -119,12 +115,8 @@ class BHackersV2App extends StoreApp {
   getIdentificationMethod() {
     return ['checkImported', async () => {
       if(!this.blobPromise){
-        try {
-          this.blobPromise =
-            request('GET', this._data.download.url, 'blob', null);
-        } catch(e) {
-          return {error: e};
-        }
+        this.blobPromise =
+          request('GET', this._data.download.url, 'blob', null);
       }
       return {args: [await this.blobPromise]};
     }];

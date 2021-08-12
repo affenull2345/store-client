@@ -21,7 +21,6 @@ class MozAppsImportedApp extends InstalledApp {
     this._mozApp = mozApp;
   }
   open() {
-    window.debug_mozApp = this._mozApp;
     this._mozApp.launch();
   }
   uninstall() {

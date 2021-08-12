@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 const installers = [
+  require('./installer/self-debug').default,
   require('./installer/mozapps-import').default,
 ];
 
@@ -24,17 +25,7 @@ export default async function installApp(app, progress){
   let [method, loader] = app.getInstallationMethod();
   for(let i = 0; i < installers.length; i++){
     let result;
-    try {
-      result = await loader(progress);
-    } catch(e) {
-      console.error('Installation prepare error', e);
-      error = e;
-    }
-
-    if(result.error){
-      console.error('Store error', result.error);
-      throw result.error;
-    }
+    result = await loader(progress);
 
     try {
       console.log(`Trying with <installer #${i}>.${method}`);

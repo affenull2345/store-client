@@ -26,6 +26,7 @@
     "eslint-plugin-inferno": "^7.11.0",
     "eslint-plugin-jsx-a11y": "6.1.2",
     "file-loader": "2.0.0",
+    "firefox-client": "git+https://gitlab.com/affenull2345/firefox-client-on-device.git",
     "fs-extra": "7.0.1",
     "html-webpack-plugin": "4.0.0-alpha.2",
     "identity-obj-proxy": "3.0.0",
