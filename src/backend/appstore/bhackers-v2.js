@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import { AppStore, StoreApp } from '../AppStore'
+import compareVersions from 'compare-versions';
 
 const servers = [
   "https://banana-hackers.gitlab.io/store-db",
@@ -120,6 +121,10 @@ class BHackersV2App extends StoreApp {
       }
       return {args: [await this.blobPromise]};
     }];
+  }
+  checkUpdatable(version) {
+    return Promise.resolve(
+      compareVersions(this._data.download.version, version) > 0);
   }
 }
 

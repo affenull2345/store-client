@@ -117,32 +117,37 @@ export default class AppView extends Component {
     this.el.removeEventListener('keydown', this.handleKeyDown.bind(this));
   }
 
+  updateInstallState() {
+    checkInstalled(this.props.app).then(app => {
+      if(app){
+        this.installedApp = app;
+        this.app.checkUpdatable(app.version).then(updatable => {
+          this.setState({
+            status: this.state.status,
+            installState: updatable ? 'updatable' : 'installed'
+          });
+        });
+      }
+      else {
+        this.setState({
+          status: this.state.status,
+          installState: 'not-installed'
+        });
+      }
+    }).catch(e => {
+      this.setState({
+        status: 'Install check failed',
+        installState: 'check-failed'
+      });
+    });
+    this.setState({
+      status: this.state.status,
+      installState: 'checking'
+    });
+  }
   render() {
     if(this.state.installState === 'unknown'){
-      checkInstalled(this.props.app).then(app => {
-        if(app){
-          this.installedApp = app;
-          this.setState({
-            status: this.state.status,
-            installState: 'installed'
-          });
-        }
-        else {
-          this.setState({
-            status: this.state.status,
-            installState: 'not-installed'
-          });
-        }
-      }).catch(e => {
-        this.setState({
-          status: 'Install check failed',
-          installState: 'check-failed'
-        });
-      });
-      this.setState({
-        status: this.state.status,
-        installState: 'checking'
-      });
+      this.updateInstallState();
     }
     return createPortal(
       (<>
@@ -163,7 +168,8 @@ export default class AppView extends Component {
             this.state.installState === 'updatable' ? 'Update' : 'Install'
           }
           rightText={
-            this.state.installState === 'not-installed' ? '' : 'Uninstall'
+            (this.state.installState === 'not-installed' ||
+              this.state.installState === 'unknown') ? '' : 'Uninstall'
           }
           centerCallback={
             this.state.installState === 'installed' ? this.open.bind(this) :

@@ -15,6 +15,8 @@
  */
 import { Installer, InstalledApp } from '../Installer';
 
+var getAllCachedPromise = null;
+
 class MozAppsImportedApp extends InstalledApp {
   constructor(mozApp){
     super();
@@ -34,6 +36,9 @@ class MozAppsImportedApp extends InstalledApp {
       }
     });
   }
+  get version() {
+    return this._mozApp.manifest.version;
+  }
 }
 
 class MozAppsImportInstaller extends Installer {
@@ -47,19 +52,22 @@ class MozAppsImportInstaller extends Installer {
     });
   }
   checkInstalled(manifest_url){
-    return new Promise((resolve, reject) => {
-      var req = navigator.mozApps.mgmt.getAll();
-      req.onsuccess = function(){
-        for(var i = 0; i < req.result.length; i++){
-          if(req.result[i].manifestURL === manifest_url){
-            resolve(new MozAppsImportedApp(req.result[i]));
-            return;
-          }
+    if(!getAllCachedPromise){
+      getAllCachedPromise = new Promise((resolve, reject) => {
+        var req = navigator.mozApps.mgmt.getAll();
+        req.onsuccess = function(){
+          resolve(req.result);
         }
-        resolve(null);
-      }
-      req.onerror = function(){
-        reject(new Error(req.error.name + ' ' + req.error.message));
+        req.onerror = function(){
+          reject(new Error(req.error.name + ' ' + req.error.message));
+        }
+      });
+    }
+    return getAllCachedPromise.then(all => {
+      for(var i = 0; i < all.length; i++){
+        if(all[i].manifestURL === manifest_url){
+          return Promise.resolve(new MozAppsImportedApp(all[i]));
+        }
       }
     });
   }
