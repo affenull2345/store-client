@@ -53,6 +53,20 @@ function request(meth, url, rtype, data, progress){
   });
 }
 
+async function countDownload(slug){
+  for(var i = 0; i < rating_servers.length; i++){
+    let srv = rating_servers[i];
+    try {
+      let response = await request('GET', srv + '/download_counter/count/' +
+        slug);
+      if(response !== 'OK') throw new Error(response);
+    }
+    catch(e) {
+      console.error(`Server ${srv} failed with`, e);
+    }
+  }
+}
+
 async function loadSRSData(data){
   for(var i = 0; i < rating_servers.length; i++){
     let srv = rating_servers[i];
@@ -97,7 +111,7 @@ class BHackersV2App extends StoreApp {
   constructor(data, downloadCount){
     super();
     this._data = data;
-    this._downloadCount = downloadCount;
+    this._downloadCount = downloadCount || 0;
     this.blobPromise = null;
   }
   get name() {
@@ -133,6 +147,8 @@ class BHackersV2App extends StoreApp {
               reportProgress('Downloading', Math.floor(loaded/total*100));
             });
       }
+      countDownload(this._data.slug);
+      this._downloadCount++;
       return {args: [await this.blobPromise]};
     }];
   }
