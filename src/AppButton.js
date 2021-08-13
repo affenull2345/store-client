@@ -56,6 +56,6 @@ export default class AppButton extends Component {
     this.btn.focus();
   }
   handleBlur() {
-    this.setState({focused: false, open: this.state.open});
+    this.setState({focused: false});
   }
 }

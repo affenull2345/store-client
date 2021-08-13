@@ -52,13 +52,11 @@ export default class AppView extends Component {
   }
   install() {
     this.setState({
-      status: 'Installing',
-      installState: this.state.installState
+      status: 'Installing'
     });
     installApp(this.props.app, (stage, progress) => {
       this.setState({
-        status: `${stage} (${progress}%)`,
-        installState: this.state.installState
+        status: `${stage} (${progress}%)`
       });
     }).then(app => {
       this.installedApp = app;
@@ -69,8 +67,7 @@ export default class AppView extends Component {
     }).catch(err => {
       alert('While installing app: ' + err);
       this.setState({
-        status: 'Failed',
-        installState: this.state.installState
+        status: 'Failed'
       });
     });
   }
@@ -123,14 +120,12 @@ export default class AppView extends Component {
         this.installedApp = app;
         this.app.checkUpdatable(app.version).then(updatable => {
           this.setState({
-            status: this.state.status,
             installState: updatable ? 'updatable' : 'installed'
           });
         });
       }
       else {
         this.setState({
-          status: this.state.status,
           installState: 'not-installed'
         });
       }
@@ -141,7 +136,6 @@ export default class AppView extends Component {
       });
     });
     this.setState({
-      status: this.state.status,
       installState: 'checking'
     });
   }

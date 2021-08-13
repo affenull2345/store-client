@@ -52,10 +52,7 @@ export default class AppList extends Component {
       if(idx >= 0){
         if(this.appRefs[idx]) focusIntoView(this.appRefs[idx]);
         this.setState({
-          loading: this.state.loading,
-          selected: idx,
-          loadedPages: this.state.loadedPages,
-          isLastPage: this.state.isLastPage
+          selected: idx
         });
       }
     }
@@ -66,17 +63,13 @@ export default class AppList extends Component {
         if(idx < this.apps.length){
           if(this.appRefs[idx]) focusIntoView(this.appRefs[idx]);
           this.setState({
-            loading: this.state.loading,
-            selected: idx,
-            loadedPages: this.state.loadedPages,
-            isLastPage: this.state.isLastPage
+            selected: idx
           });
         }
         if(idx >= (this.apps.length - 2) && !this.state.isLastPage){
           this.setState({
             loading: true,
             selected: idx,
-            loadedPages: this.state.loadedPages,
             isLastPage: false
           });
           this.loadNextPage();
@@ -99,8 +92,7 @@ export default class AppList extends Component {
       this.setState({
         loading: false,
         loadedPages: nextPage,
-        isLastPage,
-        selected: this.state.selected
+        isLastPage
       });
       if(this.appRefs[this.state.selected])
         focusIntoView(this.appRefs[this.state.selected]);

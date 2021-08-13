@@ -33,12 +33,12 @@ export default class Store extends Component {
   }
   storeLoadComplete(idx) {
     if(this.state.store === idx)
-      this.setState({store: idx, loaded: true});
+      this.setState({loaded: true, loading: false});
   }
   render() {
     if(!this.state.loaded){
       if(!this.state.loading){
-        this.setState({loading: true, loaded: false, store: this.state.store});
+        this.setState({loading: true, loaded: false});
         this.stores[this.state.store]
           .load().then(this.storeLoadComplete.bind(this, 0));
       }
