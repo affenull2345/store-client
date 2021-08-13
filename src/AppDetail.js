@@ -40,6 +40,8 @@ export default class AppDetail extends Component {
           return <div><b>Developers:</b>{meta[key].name}</div>;
         case 'license':
           return <div><b>License:</b>{meta[key]}</div>;
+        case 'download_count':
+          return <div><b>Downloads:</b>{meta[key]}</div>;
         default:
           return null;
       }
