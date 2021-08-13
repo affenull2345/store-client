@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { Component } from 'inferno';
-import AppDetail from './AppDetail';
+import AppView from './AppView';
 import './AppButton.css';
 
 export default class AppButton extends Component {
@@ -40,7 +40,7 @@ export default class AppButton extends Component {
           ref={btn => this.btn = btn}
         >{this.props.app.name}</button>
         {this.state.open ? (
-          <AppDetail
+          <AppView
             app={this.props.app}
             onClose={this.handleFocus.bind(this)}
           />
