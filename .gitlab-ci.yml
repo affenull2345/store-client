@@ -1,0 +1,23 @@
+image: yarn:latest
+
+build:
+  stage: build
+  before_script:
+    - apt update -y && apt install zip -y
+  script:
+    - yarn
+    - yarn build
+    - (cd build && zip -r ../application.zip .)
+    - echo '{"version":1,"manifestURL":"app://multi.store.bananahackers.net/manifest.webapp"}' > metadata.json
+    - zip store.zip metadata.json application.zip
+  artifacts:
+    paths:
+      - store.zip
+
+pages:
+  stage: deploy
+  script:
+    - cp store.zip public/
+  artifacts:
+    paths:
+      - public
