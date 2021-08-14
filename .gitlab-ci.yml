@@ -4,7 +4,6 @@ build:
   stage: build
   before_script:
     - apt update -y && apt install zip -y
-    - npm install -g yarn
   script:
     - yarn
     - yarn build
