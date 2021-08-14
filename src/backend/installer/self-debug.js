@@ -18,6 +18,7 @@ import { Installer } from '../Installer';
 
 const token_alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_.";
 const binary_name = 'debug-forwarder';
+const binary_hash = '1d6a901d3237bfa56fdb8b85d593ed28';
 const daemon_base = '/data/local/service/debug-forwarder';
 const token_file = '.forwarder_token';
 const storage_1 = '/data/media';
@@ -29,6 +30,8 @@ const daemon_init_cmd =
   `cp ${storage_2}/tmp.${binary_name}.bin ${daemon_base}/${binary_name}) && ` +
   `echo 'Copied daemon to ${daemon_base}/' && ` +
   `chmod 700 ${daemon_base}/${binary_name}) > ${debug_file} 2>&1; ` +
+  `(md5sum ${daemon_base}/${binary_name} | grep '^${binary_hash}' || ` +
+  `(echo 'Failed to verify daemon hash' > ${debug_file} && false)) &&` +
   `${daemon_base}/${binary_name} 6000 /data/local/debugger-socket 127.0.0.1` +
   `>/dev/null </dev/null 2>/dev/null & ` +
   `echo 'Started daemon'; `;
@@ -37,7 +40,7 @@ function daemonInit(){
   return new Promise((resolve, reject) => {
     function failure(t){
       alert(`Something went wrong with the daemon initialization.
-Please manually follow the instructions at https://gitlab.com/affenull2345/kaios-self-debug and run the following command in 'adb shell':
+Please manually follow the instructions at https://gitlab.com/affenull2345/kaios-self-debug and run the following command in 'adb shell'; then dismiss this dialog:
 
 printf '${t}' > '${daemon_base}/${token_file}'`);
     }
@@ -56,7 +59,8 @@ printf '${t}' > '${daemon_base}/${token_file}'`);
             true
           );
         cmd.onsuccess = function(){
-          resolve(token);
+          // Wait for the daemon to spin up
+          setTimeout(() => resolve(token), 500);
         }
         cmd.onerror = function(){
           failure(token);
@@ -72,10 +76,8 @@ printf '${t}' > '${daemon_base}/${token_file}'`);
     xhr.open('GET', `/${binary_name}.bin`, true);
     xhr.responseType = 'blob';
     xhr.onload = function(){
-      if(xhr.status === 200 && xhr.response){
-        console.log('[self-debug] Loaded daemon', xhr.response);
-        let storages = navigator.getDeviceStorages('sdcard');
-        let req = storages[0].addNamed(xhr.response, `tmp.${binary_name}.bin`);
+      function save(storage){
+        let req = storage.addNamed(xhr.response, `tmp.${binary_name}.bin`);
         req.onsuccess = function(){
           console.log('[self-debug] Daemon saved to sdcard0');
           start();
@@ -83,6 +85,19 @@ printf '${t}' > '${daemon_base}/${token_file}'`);
         req.onerror = function(){
           console.error('[self-debug] Failed to save daemon', req.error);
           start();
+        }
+      }
+      if(xhr.status === 200 && xhr.response){
+        console.log('[self-debug] Loaded daemon', xhr.response);
+        let storages = navigator.getDeviceStorages('sdcard');
+        let del_req = storages[0].delete(`tmp.${binary_name}.bin`);
+        del_req.onsuccess = function(){
+          console.log('[self-debug] Deleted old daemon file on sdcard0');
+          save(storages[0]);
+        }
+        del_req.onerror = function(){
+          console.log('[self-debug] Did not delete old daemon file');
+          save(storages[0]);
         }
       }
       else {
