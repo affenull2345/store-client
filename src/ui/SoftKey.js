@@ -40,7 +40,8 @@ class SoftKeyButton extends Component {
     var renderedIcon = null;
     if(this.props.icon){
       if(this.props.icon.toString().indexOf('kai-') === -1){
-        renderedIcon = <img src={this.props.icon} width={20} height={20} />;
+        renderedIcon = <img src={this.props.icon} width={20} height={20}
+          alt='' />;
       }
       else {
         renderedIcon = <span className={this.props.icon} />;

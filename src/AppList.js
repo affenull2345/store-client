@@ -44,7 +44,6 @@ export default class AppList extends Component {
     this.scrolling = Promise.resolve();
   }
   handleKeydown(e) {
-    var wrap = false;
     var idx = this.state.selected;
     if(e.key === 'ArrowUp'){
       e.preventDefault();
