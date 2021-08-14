@@ -16,5 +16,9 @@
     "name": "Affe Null",
     "url": "https://gitlab.com/affenull2345"
   },
-  "version": "0.1.0"
+  "version": "0.1.0",
+  "icons": {
+    "56": "/icon_56.png",
+    "112": "/icon_112.png"
+  }
 }
