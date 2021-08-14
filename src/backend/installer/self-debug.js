@@ -15,7 +15,6 @@
  */
 import FirefoxClient from 'firefox-client';
 import { Installer } from '../Installer';
-import mozAppsImportInstaller from './mozapps-import';
 
 const token_alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_.";
 const binary_name = 'debug-forwarder';
@@ -143,9 +142,7 @@ class SelfDebugInstaller extends Installer {
         console.log(`[self-debug] appId=${url.host}, installing`, pkg);
         interfaces.webapps.installPackaged(pkg, url.host, e => {
           if(e) reject(e);
-          else mozAppsImportInstaller.checkInstalled(manifestURL).then(app => {
-            resolve(app);
-          });
+          else resolve();
         });
       });
     }).catch(e => {

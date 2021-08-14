@@ -13,9 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { installStatusUpdate } from '../check-installed';
 import { Installer, InstalledApp } from '../Installer';
 
 var getAllCachedPromise = null;
+
+if(navigator.mozApps && navigator.mozApps.mgmt){
+  navigator.mozApps.mgmt.onuninstall = navigator.mozApps.mgmt.oninstall = ()=>{
+    getAllCachedPromise = null;
+    installStatusUpdate.emit();
+  }
+}
 
 class MozAppsImportedApp extends InstalledApp {
   constructor(mozApp){
@@ -44,7 +52,7 @@ class MozAppsImportedApp extends InstalledApp {
 class MozAppsImportInstaller extends Installer {
   importPackage(pkg){
     return navigator.mozApps.mgmt.import(pkg).then(app => {
-      return Promise.resolve(new MozAppsImportedApp(app));
+      return Promise.resolve();
     }).catch(e => {
       if(e instanceof DOMError){
         return Promise.reject(new Error(e.name + ' ' + e.message));
@@ -64,9 +72,9 @@ class MozAppsImportInstaller extends Installer {
       });
     }
     return getAllCachedPromise.then(all => {
-      for(var i = 0; i < all.length; i++){
-        if(all[i].manifestURL === manifest_url){
-          return Promise.resolve(new MozAppsImportedApp(all[i]));
+      for(const app of all){
+        if(app.manifestURL === manifest_url){
+          return Promise.resolve(new MozAppsImportedApp(app));
         }
       }
     });

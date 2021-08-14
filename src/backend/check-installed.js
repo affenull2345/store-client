@@ -15,7 +15,20 @@
  */
 import { installers } from './install-app';
 
-async function checkInstalled(app){
+var installStatusUpdate = {
+  callbacks: [],
+  subscribe(cb) {
+    this.callbacks.push(cb);
+  },
+  unsubscribe(cb) {
+    this.callbacks = this.callbacks.filter(cb2 => cb2 !== cb);
+  },
+  emit() {
+    this.callbacks.forEach(cb => cb());
+  }
+};
+
+export default async function checkInstalled(app){
   let error = new Error('No installers found');
   let [method, loader] = app.getIdentificationMethod();
   for(let i = 0; i < installers.length; i++){
@@ -33,8 +46,4 @@ async function checkInstalled(app){
   throw error;
 }
 
-export default function checkInstalled_cached(app){
-  if(!app.checkInstalled_promise)
-    app.checkInstalled_promise = checkInstalled(app);
-  return app.checkInstalled_promise;
-}
+export { installStatusUpdate };

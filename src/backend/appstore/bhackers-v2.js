@@ -54,8 +54,7 @@ function request(meth, url, rtype, data, progress){
 }
 
 async function countDownload(slug){
-  for(var i = 0; i < rating_servers.length; i++){
-    let srv = rating_servers[i];
+  for(let srv of rating_servers){
     try {
       let response = await request('GET', srv + '/download_counter/count/' +
         slug);
@@ -68,8 +67,7 @@ async function countDownload(slug){
 }
 
 async function loadSRSData(data){
-  for(var i = 0; i < rating_servers.length; i++){
-    let srv = rating_servers[i];
+  for(let srv of rating_servers){
     try {
       let response = await request('GET', srv + '/download_counter');
       let obj = JSON.parse(response);
@@ -89,8 +87,7 @@ async function loadSRSData(data){
 }
 
 async function loadData(){
-  for(var i = 0; i < servers.length; i++){
-    let srv = servers[i];
+  for(let srv of servers){
     try {
       let response = await request('GET', srv + '/data.json', 'string', null);
       let obj = JSON.parse(response);
@@ -163,7 +160,8 @@ class BHackersV2App extends StoreApp {
   }
   checkUpdatable(version) {
     return Promise.resolve(
-      compareVersions(this._data.download.version, version) > 0);
+      version ? (compareVersions(this._data.download.version, version) > 0) :
+      false);
   }
 }
 

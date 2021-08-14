@@ -16,7 +16,7 @@
 import { Component, createPortal } from 'inferno';
 import { findDOMNode } from 'inferno-extras';
 import installApp from './backend/install-app';
-import checkInstalled from './backend/check-installed';
+import checkInstalled, { installStatusUpdate } from './backend/check-installed';
 import SoftKey from './ui/SoftKey';
 import AppDetail from './AppDetail';
 import './AppView.css';
@@ -31,7 +31,8 @@ export default class AppView extends Component {
     this.el.tabIndex = 0;
     this.state = {
       status: '',
-      installState: 'unknown'
+      installState: 'unknown',
+      locked: false
     };
   }
   open() {
@@ -52,22 +53,23 @@ export default class AppView extends Component {
   }
   install() {
     this.setState({
-      status: 'Installing'
+      status: 'Installing',
+      locked: true
     });
     installApp(this.props.app, (stage, progress) => {
       this.setState({
         status: `${stage} (${progress}%)`
       });
-    }).then(app => {
-      this.installedApp = app;
+    }).then(() => {
       this.setState({
         status: 'Installed!',
-        installState: 'installed'
+        locked: false
       });
     }).catch(err => {
       alert('While installing app: ' + err);
       this.setState({
-        status: 'Failed'
+        status: 'Failed',
+        locked: false
       });
     });
   }
@@ -81,7 +83,7 @@ export default class AppView extends Component {
     let node = null;
     switch(e.key){
       case 'Backspace':
-        if(this.props.onClose){
+        if(!this.state.locked && this.props.onClose){
           this.props.onClose();
         }
         break;
@@ -108,17 +110,19 @@ export default class AppView extends Component {
     modalRoot.appendChild(this.el);
     this.el.addEventListener('keydown', this.handleKeyDown.bind(this));
     this.el.focus();
+    installStatusUpdate.subscribe(this.updateInstallState.bind(this));
   }
   componentWillUnmount() {
     modalRoot.removeChild(this.el);
     this.el.removeEventListener('keydown', this.handleKeyDown.bind(this));
+    installStatusUpdate.unsubscribe(this.updateInstallState.bind(this));
   }
 
   updateInstallState() {
     checkInstalled(this.props.app).then(app => {
       if(app){
         this.installedApp = app;
-        this.app.checkUpdatable(app.version).then(updatable => {
+        return this.props.app.checkUpdatable(app.version).then(updatable => {
           this.setState({
             installState: updatable ? 'updatable' : 'installed'
           });
@@ -158,18 +162,22 @@ export default class AppView extends Component {
         <SoftKey
           leftText=''
           centerText={
+            this.state.locked ? '' :
             this.state.installState === 'installed' ? 'Open' :
             this.state.installState === 'updatable' ? 'Update' : 'Install'
           }
           rightText={
-            (this.state.installState === 'not-installed' ||
-              this.state.installState === 'unknown') ? '' : 'Uninstall'
+            this.state.locked ? '' :
+            this.state.installState === 'not-installed' ? '' :
+            this.state.installState === 'checking' ? 'Checking...' :
+            'Uninstall'
           }
           centerCallback={
+            this.state.locked ? null :
             this.state.installState === 'installed' ? this.open.bind(this) :
             this.install.bind(this)
           }
-          rightCallback={this.uninstall.bind(this)}
+          rightCallback={this.state.locked ? null : this.uninstall.bind(this)}
           keyboardReceiver={this.el}
         />
       </>),
