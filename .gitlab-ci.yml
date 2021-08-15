@@ -8,16 +8,21 @@ build:
     - yarn
     - yarn build
     - (cd build && zip -r ../application.zip .)
-    - echo '{"version":1,"manifestURL":"app://multi.store.bananahackers.net/manifest.webapp"}' > metadata.json
+    - echo '{"version":1,"manifestURL":"https://affenull2345.gitlab.io/store-client/manifest.webapp"}' > metadata.json
     - zip store.zip metadata.json application.zip
   artifacts:
     paths:
       - store.zip
+      - build
 
 pages:
   stage: deploy
   script:
-    - cp store.zip public/
+    - mv public _public
+    - mkdir public
+    - cp store.zip build/manifest.webapp public/
   artifacts:
     paths:
       - public
+  only:
+    - tags
