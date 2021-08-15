@@ -29,6 +29,12 @@ export default class AppDetail extends Component {
         this.setState({
           extendedMetadata: metadata
         });
+      }).catch(e => {
+        this.setState({
+          extendedMetadata: {
+            error: e
+          }
+        });
       });
       return null;
     }
@@ -42,6 +48,8 @@ export default class AppDetail extends Component {
           return <div><b>License:</b>{meta[key]}</div>;
         case 'download_count':
           return <div><b>Downloads:</b>{meta[key]}</div>;
+        case 'error':
+          return <div><b>Failed to get metadata:</b>{`${meta[key]}`}</div>;
         default:
           return null;
       }
