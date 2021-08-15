@@ -105,11 +105,12 @@ async function loadData(){
 }
 
 class BHackersV2App extends StoreApp {
-  constructor(data, downloadCount){
+  constructor(data, downloadCount, dataVersion){
     super();
     this._data = data;
+    this._dataVersion = dataVersion;
     this._downloadCount = downloadCount || 0;
-    this.blobPromise = null;
+    this.blobPromise = this.manifestPromise = null;
   }
   get name() {
     return this._data.name;
@@ -117,8 +118,18 @@ class BHackersV2App extends StoreApp {
   get description() {
     return this._data.description;
   }
+  loadManifest() {
+    if(this._dataVersion < 3) return Promise.resolve(this._data.download);
+
+    if(!this.manifestPromise){
+      this.manifestPromise = request(
+        'GET', this._data.download.manifest, 'string', null
+      ).then(str => Promise.resolve(JSON.parse(str)));
+    }
+    return this.manifestPromise;
+  }
   getExtendedMetadata() {
-    return Promise.resolve({
+    return this.loadManifest().then(mf => Promise.resolve({
       developer: {
         name: this._data.author.map(a => a.replace(/\s*<[^>]*>$/, ''))
               .join(', '),
@@ -128,9 +139,9 @@ class BHackersV2App extends StoreApp {
       has_tracking: this._data.has_tracking,
       license: this._data.license,
       type: this._data.type,
-      version: this._data.download.version,
+      version: mf.version,
       download_count: this._downloadCount
-    });
+    }));
   }
   findIcon(size) {
     return this._data.icon;
@@ -150,18 +161,24 @@ class BHackersV2App extends StoreApp {
     }];
   }
   getIdentificationMethod() {
-    return ['checkImported', async () => {
-      if(!this.blobPromise){
-        this.blobPromise =
-          request('GET', this._data.download.url, 'blob', null);
-      }
-      return {args: [await this.blobPromise]};
+    if(this._dataVersion < 3){
+      return ['checkImported', async () => {
+        if(!this.blobPromise){
+          this.blobPromise =
+            request('GET', this._data.download.url, 'blob', null);
+        }
+        return {args: [await this.blobPromise]};
+      }];
+    }
+    return ['checkInstalled', async () => {
+      return {args: [this._data.download.manifest]};
     }];
   }
   checkUpdatable(version) {
-    return Promise.resolve(
-      version ? (compareVersions(this._data.download.version, version) > 0) :
-      false);
+    return this.loadManifest.then(mf => Promise.resolve(
+      (version && mf.version) ?
+      (compareVersions(mf.version, version) > 0) : false
+    ));
   }
 }
 
@@ -170,6 +187,12 @@ export default class BHackersV2Store extends AppStore {
     return loadData().then(data => {
       this._data = data;
       console.log('[bhackers-v2] Got data', data);
+      if(data.version < 3){
+        console.log('[bhackers-v2] Old database version detected');
+      }
+      else if(data.version > 3){
+        console.warn('[bhackers-v2] Database version too new!');
+      }
       this.categories = [{
         name: 'Most downloaded', id: '$popular', special: true
       }].concat(Object.keys(data.categories).map(ctg => {
@@ -197,7 +220,9 @@ export default class BHackersV2Store extends AppStore {
     return Promise.resolve({
       apps: filteredSet
         .slice(start, start+count)
-        .map(app => new BHackersV2App(app, this._data.downloadCount[app.slug])),
+        .map(app => new BHackersV2App(
+          app, this._data.downloadCount[app.slug], this._data.version
+        )),
       isLastPage: start+count >= filteredSet.length
     });
   }
