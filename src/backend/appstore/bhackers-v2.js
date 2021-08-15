@@ -119,7 +119,9 @@ class BHackersV2App extends StoreApp {
     return this._data.description;
   }
   loadManifest() {
-    if(this._dataVersion < 3) return Promise.resolve(this._data.download);
+    if(this._dataVersion < 3) return Promise.resolve({
+      version: this._data.download.version
+    });
 
     if(!this.manifestPromise){
       this.manifestPromise = request(
@@ -175,7 +177,7 @@ class BHackersV2App extends StoreApp {
     }];
   }
   checkUpdatable(version) {
-    return this.loadManifest.then(mf => Promise.resolve(
+    return this.loadManifest().then(mf => Promise.resolve(
       (version && mf.version) ?
       (compareVersions(mf.version, version) > 0) : false
     ));
