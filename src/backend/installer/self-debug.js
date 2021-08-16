@@ -147,15 +147,15 @@ class SelfDebugInstaller extends Installer {
       });
     });
   }
-  installPackage(manifestURL, pkg){
+  installPackage(manifestURL, pkg, idHint){
     if(!this.loading){
       this.load();
     }
     return this.loading.then(interfaces => {
-      var url = new URL(manifestURL);
+      var id = '{' + idHint + '}';
       return new Promise((resolve, reject) => {
-        console.log(`[self-debug] appId=${url.host}, installing`, pkg);
-        interfaces.webapps.installPackaged(pkg, url.host, e => {
+        console.log(`[self-debug] appId=${id}, installing`, pkg);
+        interfaces.webapps.installPackaged(pkg, id, e => {
           if(e) reject(e);
           else resolve();
         });

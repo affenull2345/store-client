@@ -159,7 +159,7 @@ class BHackersV2App extends StoreApp {
       }
       countDownload(this._data.slug);
       this._downloadCount++;
-      return {args: [await this.blobPromise]};
+      return {args: [await this.blobPromise, this._data.slug]};
     }];
   }
   getIdentificationMethod() {

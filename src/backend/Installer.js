@@ -38,13 +38,14 @@ async function unpack(pkg){
 }
 
 class Installer {
-  importPackage(pkg, calledFromImplementation) {
+  importPackage(pkg, idHint, calledFromImplementation) {
     if(calledFromImplementation){
       return Promise.reject(
         new Error('This installer cannot import apps'));
     }
     return unpack(pkg).then(unpacked => {
-      return this.installPackage(unpacked.manifestURL, unpacked.pkg, true);
+      return this.installPackage(unpacked.manifestURL, unpacked.pkg, idHint,
+        true);
     });
   }
   checkImported(pkg, calledFromImplementation) {
@@ -55,13 +56,13 @@ class Installer {
       return this.checkInstalled(unpacked.manifestURL, true);
     });
   }
-  installPackage(manifestURL, pkg, calledFromImplementation) {
+  installPackage(manifestURL, pkg, idHint, calledFromImplementation) {
     if(calledFromImplementation){
       return Promise.reject(
         new Error('This installer cannot install packages'));
     }
     return pack({manifestURL, pkg}).then(packed => {
-      return this.importPackage(packed.pkg, true);
+      return this.importPackage(packed.pkg, idHint, true);
     });
   }
   installHosted(manifestURL) {

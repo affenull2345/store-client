@@ -50,7 +50,7 @@ class MozAppsImportedApp extends InstalledApp {
 }
 
 class MozAppsImportInstaller extends Installer {
-  importPackage(pkg){
+  importPackage(pkg, idHint){
     return navigator.mozApps.mgmt.import(pkg).then(app => {
       return Promise.resolve();
     }).catch(e => {
