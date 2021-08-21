@@ -203,13 +203,41 @@ export default class BHackersV2Store extends AppStore {
     });
   }
   getApps(filter, start, count) {
-    var filteredSet = this._data.apps.filter(app => {
+    var origSet = this._data.apps;
+    if(filter.keywords){
+      console.log('[bhackers-v2] Keywords:', filter.keywords);
+      origSet = origSet.map(app => {
+        var score = 0;
+
+        filter.keywords.forEach(kw => {
+          kw = kw.toLowerCase();
+
+          if(app.name.toLowerCase() === kw) score += 5;
+          else if(app.name.toLowerCase().includes(kw)) score += 2;
+
+          app.meta.tags.replace(/; */i, ';').split(';').forEach(tag => {
+            if(tag.toLowerCase() === kw) score += 3;
+            else if(tag.toLowerCase().includes(kw)) score += 1;
+          });
+
+          if(app.description.toLowerCase().includes(kw)) score += 2;
+        });
+
+        var new_app = Object.create(app);
+        new_app.searchScore = score;
+        return new_app;
+      });
+    }
+    var filteredSet = origSet.filter(app => {
       var match = true;
       if(filter.categories){
         if(filter.categories[0].id !== '$popular'){
           match &= filter.categories.some(
             ct => app.meta.categories.includes(ct.id));
         }
+      }
+      if(filter.keywords){
+        match &= (app.searchScore > 0);
       }
       return match;
     });
@@ -218,6 +246,9 @@ export default class BHackersV2Store extends AppStore {
         return (this._data.downloadCount[b.slug] || 0) -
           (this._data.downloadCount[a.slug] || 0);
       });
+    }
+    if(filter.keywords){
+      filteredSet.sort((a, b) => a.searchScore - b.searchScore);
     }
     return Promise.resolve({
       apps: filteredSet

@@ -1,0 +1,5 @@
+.Search {
+  height: calc(100% - var(--softkeybar-height));
+  display: flex;
+  flex-direction: column;
+}

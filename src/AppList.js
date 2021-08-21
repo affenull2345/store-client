@@ -42,6 +42,7 @@ export default class AppList extends Component {
       selected: 0
     };
     this.scrolling = Promise.resolve();
+    this.savedFilters = props.filters;
   }
   handleKeydown(e) {
     var idx = this.state.selected;
@@ -103,6 +104,18 @@ export default class AppList extends Component {
     });
   }
   renderApps() {
+    if(this.props.filters !== this.savedFilters){
+      this.savedFilters = this.props.filters;
+      this.apps = [];
+      this.loading = false;
+      this.setState({
+        loading: false,
+        loadedPages: 0,
+        isLastPage: false,
+        selected: 0
+      });
+      return;
+    }
     if(this.state.loadedPages === 0){
       if(!this.loading){
         this.loading = true;

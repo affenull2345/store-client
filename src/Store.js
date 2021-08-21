@@ -16,6 +16,7 @@
 import { Component } from 'inferno';
 import TabView from './ui/TabView';
 import SoftKey from './ui/SoftKey';
+import Search from './Search';
 import AppList from './AppList';
 import BHackersV2Store from './backend/appstore/bhackers-v2';
 import './Store.css';
@@ -28,7 +29,8 @@ export default class Store extends Component {
     this.state = {
       store: 0,
       loaded: false,
-      loading: false
+      loading: false,
+      searchOpen: false
     };
   }
   storeLoadComplete(idx) {
@@ -49,6 +51,15 @@ export default class Store extends Component {
       );
     }
 
+    if(this.state.searchOpen){
+      return (
+        <Search
+          onClose={() => this.setState({ searchOpen: false})}
+          store={this.stores[0]}
+        />
+      );
+    }
+
     const tabs = this.stores[this.state.store].categories.map(ctg => (
       <AppList
         store={this.stores[this.state.store]}
@@ -61,9 +72,10 @@ export default class Store extends Component {
       <div className='Store'>
         <TabView tabLabels={labels}>{tabs}</TabView>
         <SoftKey
-          leftText=''
+          leftIcon='kai-icon-search'
           centerText='Select'
           rightText='Options'
+          leftCallback={() => this.setState({ searchOpen: true })}
         />
       </div>
     );

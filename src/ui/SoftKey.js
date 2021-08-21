@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 import { Component } from 'inferno';
+import 'KaiUI/src/kai-font/style.css';
 import 'KaiUI/src/components/SoftKey/SoftKey.scss';
-
 
 class SoftKeyButton extends Component {
   handleClick(e) {
