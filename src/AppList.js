@@ -55,6 +55,12 @@ export default class AppList extends Component {
           selected: idx
         });
       }
+      else if(idx === -1 && this.props.canNavigateUp){
+        this.setState({
+          selected: idx
+        });
+        this.props.onNavigateUp();
+      }
     }
     else if(e.key === 'ArrowDown'){
       e.preventDefault();
