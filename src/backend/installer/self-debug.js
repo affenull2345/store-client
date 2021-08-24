@@ -134,6 +134,9 @@ class SelfDebugInstaller extends Installer {
         client.on('error', e => {
           reject(new Error(e.name + ' (' + e.message + ')'));
         });
+        client.on('end', e => {
+          reject();
+        });
       });
     }).then(client => {
       return new Promise((resolve, reject) => {
@@ -155,9 +158,12 @@ class SelfDebugInstaller extends Installer {
       var id = '{' + idHint + '}';
       return new Promise((resolve, reject) => {
         console.log(`[self-debug] appId=${id}, installing`, pkg);
-        interfaces.webapps.installPackaged(pkg, id, e => {
-          if(e) reject(e);
-          else resolve();
+        interfaces.webapps.close(manifestURL, e => {
+          if(e) console.info('Could not close app', e);
+          interfaces.webapps.installPackaged(pkg, id, e => {
+            if(e) reject(e);
+            else resolve();
+          });
         });
       });
     }).catch(e => {
