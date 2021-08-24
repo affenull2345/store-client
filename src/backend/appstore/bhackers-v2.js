@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AppStore, StoreApp } from '../AppStore'
+import { AppStore, StoreApp } from '../AppStore';
 import compareVersions from 'compare-versions';
 
 const servers = [
@@ -169,11 +169,13 @@ class BHackersV2App extends StoreApp {
           this.blobPromise =
             request('GET', this._data.download.url, 'blob', null);
         }
-        return {args: [await this.blobPromise]};
+        return {args: [await this.blobPromise, this._data.slug]};
       }];
     }
     return ['checkInstalled', async () => {
-      return {args: [this._data.download.manifest]};
+      return {args: [this._data.download.manifest,
+        (await this.loadManifest()).origin || this._data.slug
+      ]};
     }];
   }
   checkUpdatable(version) {

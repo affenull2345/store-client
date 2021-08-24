@@ -25,6 +25,21 @@ if(navigator.mozApps && navigator.mozApps.mgmt){
   }
 }
 
+function cachedGetAll(){
+  if(!getAllCachedPromise){
+    getAllCachedPromise = new Promise((resolve, reject) => {
+      var req = navigator.mozApps.mgmt.getAll();
+      req.onsuccess = function(){
+        resolve(req.result);
+      }
+      req.onerror = function(){
+        reject(new Error(req.error.name + ' ' + req.error.message));
+      }
+    });
+  }
+  return getAllCachedPromise;
+}
+
 class MozAppsImportedApp extends InstalledApp {
   constructor(mozApp){
     super();
@@ -59,21 +74,23 @@ class MozAppsImportInstaller extends Installer {
       }
     });
   }
-  checkInstalled(manifest_url){
-    if(!getAllCachedPromise){
-      getAllCachedPromise = new Promise((resolve, reject) => {
-        var req = navigator.mozApps.mgmt.getAll();
-        req.onsuccess = function(){
-          resolve(req.result);
-        }
-        req.onerror = function(){
-          reject(new Error(req.error.name + ' ' + req.error.message));
-        }
-      });
-    }
-    return getAllCachedPromise.then(all => {
+  checkInstalledByOrigin(origin){
+    var url = new URL(origin);
+    return cachedGetAll().then(all => {
       for(const app of all){
-        if(app.manifestURL === manifest_url){
+        if(app.origin === url.origin){
+          return Promise.resolve(new MozAppsImportedApp(app));
+        }
+      }
+    });
+  }
+  checkInstalled(manifest_url, idHint){
+    return cachedGetAll().then(all => {
+      for(const app of all){
+        if(app.manifestURL === manifest_url ||
+          app.manifestURL === `app://{${idHint}}/manifest.webapp` ||
+          app.origin === `app://{${idHint}}`)
+        {
           return Promise.resolve(new MozAppsImportedApp(app));
         }
       }

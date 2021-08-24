@@ -13,29 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import JSZip from 'jszip';
-
-function pack(data){
-  var zip = new JSZip();
-  zip.file('metadata.json', JSON.stringify({
-    manifestURL: data.manifestURL
-  }));
-  zip.file('application.zip', data.pkg);
-  return zip.generateAsync({type: 'blob'});
-}
-async function unpack(pkg){
-  var zip = await JSZip.loadAsync(pkg);
-  var metafile = zip.file('metadata.json');
-  if(!metafile) throw new Error('Package is missing metadata file');
-  var metadata = JSON.parse(await metafile.async('string'));
-  if(!metadata.manifestURL) throw new Error('Metadata is missing manifestURL');
-  var appfile = zip.file('application.zip');
-  if(!appfile) throw new Error('Package is missing application.zip');
-  return {
-    manifestURL: metadata.manifestURL,
-    pkg: await appfile.async('uint8array')
-  };
-}
+import { pack, unpack, extractManifest } from './pkgutils';
 
 class Installer {
   importPackage(pkg, idHint, calledFromImplementation) {
@@ -48,13 +26,13 @@ class Installer {
         true);
     });
   }
-  checkImported(pkg, calledFromImplementation) {
+  async checkImported(pkg, idHint, calledFromImplementation) {
     if(calledFromImplementation){
-      return Promise.reject(new Error('This installer cannot checkImported'));
+      throw new Error('This installer cannot checkImported');
     }
-    return unpack(pkg).then(unpacked => {
-      return this.checkInstalled(unpacked.manifestURL, true);
-    });
+    var unpacked = await unpack(pkg);
+    return this.checkInstalled(unpacked.manifestURL, idHint, true) ||
+      this.checkInstalledByOrigin((await extractManifest(unpacked.pkg)).origin);
   }
   installPackage(manifestURL, pkg, idHint, calledFromImplementation) {
     if(calledFromImplementation){
@@ -69,8 +47,11 @@ class Installer {
     return Promise.reject(
       new Error('This installer does not support hosted apps'));
   }
-  checkInstalled(manifest_url, calledFromImplementation) {
+  checkInstalled(manifest_url, idHint, calledFromImplementation) {
     return Promise.reject(new Error('This installer cannot checkInstalled'));
+  }
+  checkInstalledByOrigin(origin) {
+    return false;
   }
 }
 
