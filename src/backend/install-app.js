@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 const installers = [
-  require('./installer/self-debug').default,
   require('./installer/mozapps-import').default,
+  require('./installer/self-debug').default,
 ];
 
 export { installers };
