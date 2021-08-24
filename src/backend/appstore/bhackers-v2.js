@@ -250,7 +250,7 @@ export default class BHackersV2Store extends AppStore {
       });
     }
     if(filter.keywords){
-      filteredSet.sort((a, b) => a.searchScore - b.searchScore);
+      filteredSet.sort((a, b) => b.searchScore - a.searchScore);
     }
     return Promise.resolve({
       apps: filteredSet
