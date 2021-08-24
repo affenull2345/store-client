@@ -80,7 +80,7 @@ export default class Search extends Component {
     const reg = /[.,; ]+/ig;
     this.appList = null;
     this.setState({
-      keywords: this.search.replace(reg, ' ').split(' ')
+      keywords: this.search.replace(reg, ' ').split(' ').filter(a => a)
     });
   }
 }
