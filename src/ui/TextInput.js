@@ -57,10 +57,12 @@ export default class TextInput extends Component {
   handleKeyUp() {
   }
   handleFocus() {
+    if(this.props.onFocus) this.props.onFocus();
     this.setState({focused: true});
     this.inp.focus();
   }
   handleBlur() {
+    if(this.props.onBlur) this.props.onBlur();
     this.setState({focused: false});
   }
 }

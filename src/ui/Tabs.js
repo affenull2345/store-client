@@ -29,10 +29,11 @@ export default class Tabs extends Component {
     this.childRefs = [];
   }
   componentDidMount() {
-    document.addEventListener('keydown', this.handleKeyDown.bind(this));
+    this.handleKeyDown_bound = this.handleKeyDown.bind(this);
+    document.addEventListener('keydown', this.handleKeyDown_bound);
   }
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleKeyDown.bind(this));
+    document.removeEventListener('keydown', this.handleKeyDown_bound);
   }
   renderChildren() {
     return this.props.children.map((tab, i) => {

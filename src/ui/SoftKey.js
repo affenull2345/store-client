@@ -82,12 +82,13 @@ export default class SoftKey extends Component {
     }
   }
   componentDidMount() {
+    this.handleKeyDown_bound = this.handleKeyDown.bind(this);
     this.keyboardReceiver.addEventListener('keydown',
-      this.handleKeyDown.bind(this));
+      this.handleKeyDown_bound);
   }
   componentWillUnmount() {
     this.keyboardReceiver.removeEventListener('keydown',
-      this.handleKeyDown.bind(this));
+      this.handleKeyDown_bound);
   }
   render() {
     return (

@@ -84,10 +84,11 @@ export default class AppList extends Component {
     }
   }
   componentDidMount() {
-    document.addEventListener('keydown', this.handleKeydown.bind(this));
+    this.handleKeydown_bound = this.handleKeydown.bind(this);
+    document.addEventListener('keydown', this.handleKeydown_bound);
   }
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleKeydown.bind(this));
+    document.removeEventListener('keydown', this.handleKeydown_bound);
   }
   loadNextPage(after) {
     const nextPage = this.state.loadedPages + 1;
@@ -128,6 +129,11 @@ export default class AppList extends Component {
         this.loadNextPage();
       }
       return 'Loading...';
+    }
+    if(this.apps.length === 0){
+      return (
+        <div className='AppListEmpty p-pri'>No results.</div>
+      );
     }
     return this.apps.map((app, i) => {
       return (

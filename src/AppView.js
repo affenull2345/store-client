@@ -108,13 +108,14 @@ export default class AppView extends Component {
 
   componentDidMount() {
     modalRoot.appendChild(this.el);
-    this.el.addEventListener('keydown', this.handleKeyDown.bind(this));
+    this.handleKeyDown_bound = this.handleKeyDown.bind(this);
+    this.el.addEventListener('keydown', this.handleKeyDown_bound);
     this.el.focus();
     installStatusUpdate.subscribe(this.updateInstallState.bind(this));
   }
   componentWillUnmount() {
     modalRoot.removeChild(this.el);
-    this.el.removeEventListener('keydown', this.handleKeyDown.bind(this));
+    this.el.removeEventListener('keydown', this.handleKeyDown_bound);
     installStatusUpdate.unsubscribe(this.updateInstallState.bind(this));
   }
 

@@ -20,14 +20,6 @@ export default class Search extends Component {
       e.preventDefault();
       this.props.onClose();
     }
-    else if(e.key === 'ArrowUp' || e.key === 'ArrowDown'){
-      if(this.state.searchActive){
-        document.activeElement.blur();
-        this.setState({
-          searchActive: false
-        });
-      }
-    }
   }
   handleKeyup(e) {
     if(e.key === 'Enter' && this.state.searchActive){
@@ -45,12 +37,14 @@ export default class Search extends Component {
   }
   componentDidMount() {
     this.activateSearch();
-    document.addEventListener('keydown', this.handleKeydown.bind(this));
-    document.addEventListener('keyup', this.handleKeyup.bind(this));
+    this.handleKeydown_bound = this.handleKeydown.bind(this);
+    this.handleKeyup_bound = this.handleKeyup.bind(this);
+    document.addEventListener('keydown', this.handleKeydown_bound);
+    document.addEventListener('keyup', this.handleKeyup_bound);
   }
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleKeydown.bind(this));
-    document.removeEventListener('keyup', this.handleKeyup.bind(this));
+    document.removeEventListener('keydown', this.handleKeydown_bound);
+    document.removeEventListener('keyup', this.handleKeyup_bound);
   }
   render() {
     if(!this.appList){
@@ -58,16 +52,19 @@ export default class Search extends Component {
         <AppList
           store={this.props.store}
           filters={{keywords: this.state.keywords}}
-          onEmpty={() => this.setState({searchActive: true})}
           canNavigateUp={true}
           onNavigateUp={this.activateSearch.bind(this)}
         /> :
-        <div className='SearchPlaceholder'>Please enter a search term</div>
+        <div className='SearchPlaceholder p-pri'>
+          Please enter a search term
+        </div>
     }
     return (
       <div className='Search'>
         <TextInput
           onChange={() => this.search = this.inp.props.value}
+          onFocus={() => this.setState({searchActive: true})}
+          onBlur={() => this.setState({searchActive: false})}
           ref={inp => this.inp = inp}
         />
         {this.appList}
@@ -83,8 +80,7 @@ export default class Search extends Component {
     const reg = /[.,; ]+/ig;
     this.appList = null;
     this.setState({
-      keywords: this.search.replace(reg, ' ').split(' '),
-      searchActive: false
+      keywords: this.search.replace(reg, ' ').split(' ')
     });
   }
 }
