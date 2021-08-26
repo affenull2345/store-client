@@ -89,7 +89,8 @@ class MozAppsImportInstaller extends Installer {
       for(const app of all){
         if(app.manifestURL === manifest_url ||
           app.manifestURL === `app://{${idHint}}/manifest.webapp` ||
-          app.origin === `app://{${idHint}}`)
+          app.origin === `app://{${idHint}}` ||
+          app.origin === idHint)
         {
           return Promise.resolve(new MozAppsImportedApp(app));
         }
