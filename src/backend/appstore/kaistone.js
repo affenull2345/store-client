@@ -143,7 +143,7 @@ export default class KaiStone extends AppStore {
   getApps(filter, start, count) {
     var path = '/kc_ksfe/v1.0/apps?bookmark=false&link=false';
     path += '&imei=' + settings.dev.imei;
-    path += '&page_size=' + count + '&page_num=' + start/count;
+    path += '&page_size=' + count + '&page_num=' + (1+Math.floor(start/count));
     path += '&simMNC=' + settings.dev.mnc + '&simMCC=' + settings.dev.mcc;
     path += '&currentMCC=null&currentMNC=null';
     if(filter.categories && filter.categories.length === 1)
