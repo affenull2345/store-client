@@ -5,7 +5,9 @@ This is a WIP app store client for the
 [KaiStore](https://www.kaiostech.com/store).
 
 It is designed to support multiple installation methods and multiple store
-backends. Installing apps from KaiStore is currently not working.
+backends. Installing apps from KaiStore is currently working, however not all
+apps from KaiStore are recognized as installed because KaiStore does not provide
+the `origin` manifest field in the generated manifest.
 
 ## Backends:
 

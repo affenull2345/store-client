@@ -135,6 +135,7 @@ export default class AppView extends Component {
         });
       }
     }).catch(e => {
+      console.error('Install check failed', e);
       this.setState({
         status: 'Install check failed',
         installState: 'check-failed'

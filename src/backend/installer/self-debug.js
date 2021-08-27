@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 import FirefoxClient from 'firefox-client';
+import blobToBuffer from 'blob-to-buffer';
+import { extractManifest } from '../pkgutils';
 import { Installer } from '../Installer';
 
 const token_alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_.";
@@ -156,13 +158,22 @@ class SelfDebugInstaller extends Installer {
     }
     return this.loading.then(interfaces => {
       var id = '{' + idHint + '}';
-      return new Promise((resolve, reject) => {
-        console.log(`[self-debug] appId=${id}, installing`, pkg);
-        interfaces.webapps.close(manifestURL, e => {
-          if(e) console.info('Could not close app', e);
-          interfaces.webapps.installPackaged(pkg, id, e => {
-            if(e) reject(e);
-            else resolve();
+      extractManifest(pkg).then(manifest => {
+        if(manifest.origin){
+          var url = new URL(manifest.origin);
+          id = url.host;
+        }
+        return new Promise((resolve, reject) => {
+          console.log(`[self-debug] appId=${id}, installing`, pkg);
+          interfaces.webapps.close(`app://${id}/manifest.webapp`, e => {
+            if(e) console.info('Could not close app', e);
+            blobToBuffer(pkg, (err, buf) => {
+              if(err) reject(err);
+              interfaces.webapps.installPackaged(buf, id, e => {
+                if(e) reject(e);
+                else resolve();
+              });
+            });
           });
         });
       });

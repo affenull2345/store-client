@@ -32,7 +32,7 @@ async function unpack(pkg){
   if(!appfile) throw new Error('Package is missing application.zip');
   return {
     manifestURL: metadata.manifestURL,
-    pkg: await appfile.async('uint8array')
+    pkg: await appfile.async('blob')
   };
 }
 async function extractManifest(pkg){

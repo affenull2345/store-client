@@ -13,6 +13,7 @@
     "babel-loader": "8.0.4",
     "babel-preset-inferno-app": "^8.0.3",
     "bfj": "6.1.1",
+    "blob-to-buffer": "^1.2.9",
     "buffer": "^6.0.3",
     "case-sensitive-paths-webpack-plugin": "2.1.2",
     "chalk": "2.4.1",

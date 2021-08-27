@@ -95,7 +95,7 @@ export default class Store extends Component {
       return (
         <Search
           onClose={() => this.setState({ searchOpen: false})}
-          store={this.stores[0]}
+          store={this.stores[this.state.store]}
         />
       );
     }

@@ -78,7 +78,9 @@ class MozAppsImportInstaller extends Installer {
     var url = new URL(origin);
     return cachedGetAll().then(all => {
       for(const app of all){
-        if(app.origin === url.origin){
+        if(app.origin === url.origin ||
+          app.manifestURL === `app://${url.origin}/manifest.webapp`)
+        {
           return Promise.resolve(new MozAppsImportedApp(app));
         }
       }

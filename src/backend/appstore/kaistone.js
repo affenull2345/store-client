@@ -61,12 +61,14 @@ class KaiStoneApp extends StoreApp {
     this._data = data;
   }
   get name() {
-    return this._data.display;
+    return this._data.display || this._data.name;
   }
   get description() {
     return this._data.description;
   }
   findIcon(preferredSize) {
+    if(this._data.thumbnail_url) return this._data.thumbnail_url;
+
     var sizes = Object.keys(this._data.icons);
     var bestSize = null, currentDiff = null;
     sizes.forEach(size => {
@@ -82,9 +84,37 @@ class KaiStoneApp extends StoreApp {
     }
     return this._data.icons[bestSize];
   }
+  loadManifest() {
+    if(!this.manifestPromise){
+      this.manifestPromise = this.requester.send({
+        method: 'GET',
+        path: this._data.manifest_url,
+        type: 'json'
+      });
+    }
+    return this.manifestPromise;
+  }
   getExtendedMetadata() {
-    return Promise.resolve({
-      version: this._data.version
+    var getDeveloper;
+    if('string' === typeof this._data.developer &&
+      'string' === typeof this._data.developer_url)
+    {
+      getDeveloper = Promise.resolve({
+        name: this._data.developer,
+        url: this._data.developer_url
+      });
+    }
+    else {
+      getDeveloper = this.loadManifest().then(mf => {
+        return Promise.resolve(mf.developer);
+      });
+    }
+    return getDeveloper.then(developer => {
+      return Promise.resolve({
+        developer,
+        version: this._data.version,
+        type: this._data.type
+      });
     });
   }
   getInstallationMethod() {
@@ -92,14 +122,15 @@ class KaiStoneApp extends StoreApp {
       if(!this.blobPromise){
         this.blobPromise = this.requester.send({
           method: 'GET',
-          path: this._data.package_path,
+          path: this._data.package_path ||
+            (await this.loadManifest()).package_path,
           type: 'blob'
         });
       }
       return {args: [
         this._data.manifest_url,
         await this.blobPromise,
-        this._data.name
+        this._data.id
       ]};
     }];
   }
@@ -107,12 +138,14 @@ class KaiStoneApp extends StoreApp {
     return ['checkInstalled', async () => {
       return {args: [
         this._data.manifest_url,
-        this._data.name
+        (await this.loadManifest()).origin || this._data.id
       ]};
     }];
   }
   checkUpdatable(version) {
-    return version ? (compareVersions(this._data.version, version) > 0) : false;
+    return Promise.resolve(
+      version ? (compareVersions(this._data.version, version) > 0) : false
+    );
   }
 }
 
@@ -141,21 +174,43 @@ export default class KaiStone extends AppStore {
     );
   }
   getApps(filter, start, count) {
-    var path = '/kc_ksfe/v1.0/apps?bookmark=false&link=false';
+    var isSearch = false, clientSideCategoryFilter = false;
+    var path = '/kc_ksfe/v1.0/apps';
+    if(Array.isArray(filter.keywords)){
+      isSearch = true;
+      path = 'https://search.kaiostech.com/v3/_search';
+    }
+    path += '?bookmark=false&link=false';
     path += '&imei=' + settings.dev.imei;
-    path += '&page_size=' + count + '&page_num=' + (1+Math.floor(start/count));
-    path += '&simMNC=' + settings.dev.mnc + '&simMCC=' + settings.dev.mcc;
-    path += '&currentMCC=null&currentMNC=null';
-    if(filter.categories && filter.categories.length === 1)
-      path += '&category=' + filter.categories[0].code;
+    if(isSearch){
+      path += '&platform=' + settings.dev.version;
+      path += '&page=' + Math.floor(start/count);
+      path += '&size=' + count;
+    }
+    else {
+      path += '&os=' + settings.dev.version;
+      path += '&page_size=' + count;
+      path += '&page_num=' + (1+Math.floor(start/count));
+    }
+    path += '&mnc=' + settings.dev.mnc + '&mcc=' + settings.dev.mcc;
+    if(filter.categories && filter.categories.length > 0){
+      if(filter.categories.length === 1)
+        path += '&category=' + encodeURIComponent(filter.categories[0].code);
+      else
+        clientSideCategoryFilter = true;
+    }
+    if(isSearch){
+      path += '&query=' + filter.keywords.join(' ');
+      path += '&locale=' + encodeURIComponent(navigator.language);
+    }
     return this.requester.send({
       method: 'GET',
       type: 'json',
       path
     }).then(data => {
-      var filtered = data.apps.filter(app => {
+      var filtered = (isSearch ? data.organic : data.apps).filter(app => {
         var match = true;
-        if(filter.categories && filter.categories.length > 1){
+        if(clientSideCategoryFilter){
           match &= filter.categories.some(
             ct => app.category_list.includes(ct.code));
         }
@@ -163,7 +218,7 @@ export default class KaiStone extends AppStore {
       });
       return Promise.resolve({
         apps: filtered.map(app => new KaiStoneApp(app, this.requester)),
-        isLastPage: data.last_page
+        isLastPage: isSearch ? data.page === data.total_pages-1 : data.last_page
       });
     });
   }
