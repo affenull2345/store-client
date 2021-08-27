@@ -65,7 +65,7 @@ export default class Requester {
           (req.contentType && req.contentType !== 'application/json') ?
           req.data : JSON.stringify(req.data)
         ) : null;
-        var hawkinfo, hawkheader;
+        var hawkinfo;
         if(path[0] === '/'){
           path = this.api.server.url + path;
         }
