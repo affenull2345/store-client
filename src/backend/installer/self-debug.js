@@ -158,7 +158,7 @@ class SelfDebugInstaller extends Installer {
     }
     return this.loading.then(interfaces => {
       var id = '{' + idHint + '}';
-      extractManifest(pkg).then(manifest => {
+      return extractManifest(pkg).then(manifest => {
         if(manifest.origin){
           var url = new URL(manifest.origin);
           id = url.host;
