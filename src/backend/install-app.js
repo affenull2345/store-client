@@ -33,8 +33,8 @@ export default async function installApp(app, progress){
     try {
       console.log(`Trying with ${installers[i].name}.${method}`);
       progress(`Installing [${installers[i].name}]` +
-        installers[i].name === 'self-debug' ?
-        ' - please be patient, might take a long time' : '');
+        (installers[i].name === 'self-debug' ?
+        ' - be patient!' : ''));
       return await installers[i][method].apply(installers[i], result.args);
     } catch(e) {
       console.error('Install error', e);

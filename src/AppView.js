@@ -58,7 +58,7 @@ export default class AppView extends Component {
     });
     installApp(this.props.app, (stage, progress) => {
       this.setState({
-        status: `${stage} (${progress}%)`
+        status: 'number' === typeof progress ? `${stage} (${progress}%)` : stage
       });
     }).then(() => {
       this.setState({
