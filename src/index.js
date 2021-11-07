@@ -18,6 +18,11 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
+/* Force debug mode to be enabled */
+navigator.mozSettings.createLock().set({
+  'debugger.remote-mode': 'adb-devtools'
+});
+
 render(<App />, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change

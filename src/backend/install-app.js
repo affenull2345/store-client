@@ -24,11 +24,17 @@ export default async function installApp(app, progress){
   let error = new Error('No installers found');
   let [method, loader] = app.getInstallationMethod();
   for(let i = 0; i < installers.length; i++){
-    let result;
-    result = await loader(progress);
+    let loaded = false;
+    let result = await loader((what, amount) => {
+      if(!loaded) progress(what, amount);
+    });
+    loaded = true;
 
     try {
-      console.log(`Trying with <installer #${i}>.${method}`);
+      console.log(`Trying with ${installers[i].name}.${method}`);
+      progress(`Installing [${installers[i].name}]` +
+        installers[i].name === 'self-debug' ?
+        ' - please be patient, might take a long time' : '');
       return await installers[i][method].apply(installers[i], result.args);
     } catch(e) {
       console.error('Install error', e);

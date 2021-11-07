@@ -99,6 +99,9 @@ class MozAppsImportInstaller extends Installer {
       }
     });
   }
+  get name(){
+    return 'mozApps-import';
+  }
 }
 
 const inst = new MozAppsImportInstaller();

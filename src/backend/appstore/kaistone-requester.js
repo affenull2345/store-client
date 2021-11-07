@@ -110,6 +110,12 @@ export default class Requester {
         xhr.onerror = function(){
           reject(new Error('request error'));
         }
+        xhr.onprogress = function(e){
+          if(req.reportProgress)
+            req.reportProgress('Downloading', Math.floor(
+              e.loaded / e.total * 100
+            ));
+        }
         xhr.onload = function(){
           var msg = '';
           if(xhr.status !== 200 && xhr.status !== 201 && xhr.status !== 204){

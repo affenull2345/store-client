@@ -8,6 +8,7 @@
     "webapps-manage": {},
     "engmode-extension": {},
     "external-api": {},
+    "settings": {"access":"readwrite"},
     "device-storage:sdcard": {"access":"readwrite"}
   },
   "launch_path": "/index.html",

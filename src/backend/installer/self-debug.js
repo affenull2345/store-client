@@ -44,7 +44,9 @@ function daemonInit(){
       alert(`Something went wrong with the daemon initialization.
 Please manually follow the instructions at https://gitlab.com/affenull2345/kaios-self-debug and run the following command in 'adb shell'; then dismiss this dialog:
 
-printf '${t}' > '${daemon_base}/${token_file}'`);
+printf '${t}' > '${daemon_base}/${token_file}'
+
+If the problem persists, please contact affenull2345@gmail.com and mention your phone model, firmware version and KaiOS version.`);
     }
     let token = "";
     for(let i = 0; i < 32; i++){
@@ -165,14 +167,14 @@ class SelfDebugInstaller extends Installer {
         }
         return new Promise((resolve, reject) => {
           console.log(`[self-debug] appId=${id}, installing`, pkg);
-          interfaces.webapps.close(`app://${id}/manifest.webapp`, e => {
-            if(e) console.info('Could not close app', e);
-            blobToBuffer(pkg, (err, buf) => {
-              if(err) reject(err);
-              interfaces.webapps.installPackaged(buf, id, e => {
-                if(e) reject(e);
-                else resolve();
+          blobToBuffer(pkg, (err, buf) => {
+            if(err) reject(err);
+            interfaces.webapps.installPackaged(buf, id, e => {
+              interfaces.webapps.close(`app://${id}/manifest.webapp`, e => {
+                if(e) console.info('Could not close app', e);
               });
+              if(e) reject(e);
+              else resolve();
             });
           });
         });
@@ -183,6 +185,9 @@ class SelfDebugInstaller extends Installer {
     });
   }
   /* checkInstalled should fall back to mozApps-based installer */
+  get name(){
+    return 'self-debug';
+  }
 }
 
 const inst = new SelfDebugInstaller();

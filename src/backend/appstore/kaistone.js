@@ -124,7 +124,8 @@ class KaiStoneApp extends StoreApp {
           method: 'GET',
           path: this._data.package_path ||
             (await this.loadManifest()).package_path,
-          type: 'blob'
+          type: 'blob',
+          reportProgress
         });
       }
       return {args: [
