@@ -181,7 +181,7 @@ export default class KaiStone extends AppStore {
       isSearch = true;
       path = 'https://search.kaiostech.com/v3/_search';
     }
-    path += '?bookmark=false&link=false';
+    path += '?bookmark=false';
     path += '&imei=' + settings.dev.imei;
     if(isSearch){
       path += '&platform=' + settings.dev.version;
