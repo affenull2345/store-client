@@ -16,11 +16,11 @@
 import { AppStore, StoreApp } from '../AppStore';
 import compareVersions from 'compare-versions';
 
-const servers = [
+const BHACKERS_SERVERS = [
   "https://banana-hackers.gitlab.io/store-db",
   "https://bananahackers.github.io/store-db",
 ];
-const rating_servers = [
+const BHACKERS_RATINGS = [
   "https://bhackers.uber.space/srs/v1",
 ];
 
@@ -53,7 +53,7 @@ function request(meth, url, rtype, data, progress){
   });
 }
 
-async function countDownload(slug){
+async function countDownload(rating_servers, slug){
   for(let srv of rating_servers){
     try {
       let response = await request('GET', srv + '/download_counter/count/' +
@@ -66,12 +66,14 @@ async function countDownload(slug){
   }
 }
 
-async function loadSRSData(data){
+async function loadSRSData(rating_servers, data){
+  const reg = /[^a-z]/g;
+  const saveName = 'bhv2srs-' + rating_servers[0].replace(reg, '$');
   for(let srv of rating_servers){
     try {
       let response = await request('GET', srv + '/download_counter');
       let obj = JSON.parse(response);
-      localStorage.setItem('bhv2srs-save', response);
+      localStorage.setItem(saveName, response);
       data.downloadCount = obj;
       return data;
     }
@@ -79,20 +81,21 @@ async function loadSRSData(data){
       console.error(`Server ${srv} failed with`, e);
     }
   }
-  if(localStorage.getItem('bhv2-save')){
-    data.downloadCount = JSON.parse(localStorage.getItem('bhv2-save'));
+  const saved = localStorage.getItem(saveName);
+  if(saved){
+    data.downloadCount = JSON.parse(saved);
     return data;
   }
   throw new Error('Could not load SRS data');
 }
 
-async function loadData(){
+async function loadData(servers, rating_servers){
   for(let srv of servers){
     try {
       let response = await request('GET', srv + '/data.json', 'string', null);
       let obj = JSON.parse(response);
       localStorage.setItem('bhv2-save', response);
-      return await loadSRSData(obj);
+      return await loadSRSData(rating_servers, obj);
     }
     catch(e) {
       console.error(`Server ${srv} failed with`, e);
@@ -105,11 +108,12 @@ async function loadData(){
 }
 
 class BHackersV2App extends StoreApp {
-  constructor(data, downloadCount, dataVersion){
+  constructor(ratings, data, downloadCount, dataVersion){
     super();
     this._data = data;
     this._dataVersion = dataVersion;
     this._downloadCount = downloadCount || 0;
+    this.ratings = ratings;
     this.blobPromise = this.manifestPromise = null;
   }
   get name() {
@@ -157,7 +161,7 @@ class BHackersV2App extends StoreApp {
               reportProgress('Downloading', Math.floor(loaded/total*100));
             });
       }
-      countDownload(this._data.slug);
+      countDownload(this.ratings, this._data.slug);
       this._downloadCount++;
       return {args: [await this.blobPromise, this._data.slug]};
     }];
@@ -187,8 +191,18 @@ class BHackersV2App extends StoreApp {
 }
 
 export default class BHackersV2Store extends AppStore {
+  constructor(
+    servers = BHACKERS_SERVERS,
+    ratings = BHACKERS_RATINGS,
+    name = 'B-Hackers Store'
+  ) {
+    super();
+    this.servers = servers;
+    this.ratings = ratings;
+    this.name = name;
+  }
   load() {
-    return loadData().then(data => {
+    return loadData(this.servers, this.ratings).then(data => {
       this._data = data;
       console.log('[bhackers-v2] Got data', data);
       if(data.version < 3){
@@ -256,12 +270,12 @@ export default class BHackersV2Store extends AppStore {
       apps: filteredSet
         .slice(start, start+count)
         .map(app => new BHackersV2App(
-          app, this._data.downloadCount[app.slug], this._data.version
+          this.ratings,
+          app,
+          this._data.downloadCount[app.slug],
+          this._data.version
         )),
       isLastPage: start+count >= filteredSet.length
     });
-  }
-  get name() {
-    return 'B-Hackers Store';
   }
 }

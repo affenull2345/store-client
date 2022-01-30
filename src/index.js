@@ -18,10 +18,12 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
-/* Force debug mode to be enabled */
-navigator.mozSettings.createLock().set({
-  'debugger.remote-mode': 'adb-devtools'
-});
+if(navigator.mozSettings){
+  /* Force debug mode to be enabled */
+  navigator.mozSettings.createLock().set({
+    'debugger.remote-mode': 'adb-devtools'
+  });
+}
 
 render(<App />, document.getElementById('root'));
 

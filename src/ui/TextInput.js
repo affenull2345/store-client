@@ -43,7 +43,6 @@ export default class TextInput extends Component {
           className='kai-text-input-input p-pri'
           onBlur={this.handleBlur.bind(this)}
           onChange={this.handleChange.bind(this)}
-          onKeyUpCapture={this.handleKeyUp.bind(this)}
           value={this.props.value}
           placeholder={this.props.placeholder}
         />
@@ -53,8 +52,6 @@ export default class TextInput extends Component {
   handleChange() {
     this.props.value = this.inp.value;
     if(this.props.onChange) this.props.onChange();
-  }
-  handleKeyUp() {
   }
   handleFocus() {
     if(this.props.onFocus) this.props.onFocus();

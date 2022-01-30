@@ -16,6 +16,8 @@
 import { Component } from 'inferno';
 import TabView from './ui/TabView';
 import SoftKey from './ui/SoftKey';
+import SelectPopup from './ui/SelectPopup';
+import RadioButtonListItem from './ui/RadioButtonListItem';
 import toast from './Toaster';
 import Search from './Search';
 import AppList from './AppList';
@@ -27,7 +29,15 @@ export default class Store extends Component {
   constructor(props) {
     super(props);
 
-    this.stores = [new BHackersV2Store(), new KaiStone()];
+    this.stores = [
+      new BHackersV2Store(),
+      new BHackersV2Store([
+        'https://storedb.opengiraffes.top',
+      ], [
+        'https://opengiraffes-rating.herokuapp.com',
+      ], 'OpenGiraffes (China)'),
+      new KaiStone(),
+    ];
     this.state = {
       store: 0,
       loaded: false,
@@ -42,6 +52,26 @@ export default class Store extends Component {
       this.setState({loaded: true, loading: false});
   }
   render() {
+    const popup = this.state.selecting && <SelectPopup
+      header="Select source"
+      onClose={() => this.setState({
+        selecting: false
+      })}
+    >{this.stores.map((store, index) =>
+      <RadioButtonListItem
+        isChecked={index === this.state.store}
+        onSelect={() => this.setState({
+          store: index,
+          loaded: false,
+          loading: false,
+          selecting: false,
+          error: null
+        })}
+      >
+        {store.name}
+      </RadioButtonListItem>
+    )}</SelectPopup>;
+
     if(!this.state.loaded){
       if(this.state.error){
         return (
@@ -61,12 +91,10 @@ export default class Store extends Component {
                 error: null
               })}
               rightCallback={() => this.setState({
-                store: this.state.store ? 0 : 1,
-                loaded: false,
-                loading: false,
-                error: null
+                selecting: true
               })}
             />
+            {popup}
           </div>
         );
       }
@@ -74,7 +102,7 @@ export default class Store extends Component {
         this.setState({loading: true, loaded: false, error: null});
         this.stores[this.state.store]
           .load()
-          .then(this.storeLoadComplete.bind(this, this.state.store))
+          .then(() => this.storeLoadComplete(this.state.store))
           .catch(e => {
             toast('Failed');
             this.setState({
@@ -104,6 +132,7 @@ export default class Store extends Component {
       <AppList
         store={this.stores[this.state.store]}
         filters={{categories: [ctg]}}
+        useFocus={!this.state.selecting}
       />
     ));
     const labels = this.stores[this.state.store].categories.map(
@@ -117,11 +146,10 @@ export default class Store extends Component {
           rightText='Switch'
           leftCallback={() => this.setState({ searchOpen: true })}
           rightCallback={() => this.setState({
-            store: this.state.store ? 0 : 1,
-            loaded: false,
-            loading: false
+            selecting: true
           })}
         />
+        {popup}
       </div>
     );
   }

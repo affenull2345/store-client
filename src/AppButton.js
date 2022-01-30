@@ -30,19 +30,19 @@ export default class AppButton extends Component {
       <div
         className='app-button'
         tabIndex={0}
-        onFocus={this.handleFocus.bind(this)}
+        onFocus={() => this.handleFocus()}
       >
         <button
           className='app-button-button'
           style={`background-image: url(${this.props.app.findIcon(56)})`}
-          onBlur={this.handleBlur.bind(this)}
-          onClick={this.handleClick.bind(this)}
+          onBlur={() => this.handleBlur()}
+          onClick={() => this.handleClick()}
           ref={btn => this.btn = btn}
         >{this.props.app.name}</button>
         {this.state.open ? (
           <AppView
             app={this.props.app}
-            onClose={this.handleFocus.bind(this)}
+            onClose={() => this.handleFocus()}
           />
         ) : null}
       </div>

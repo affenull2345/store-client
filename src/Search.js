@@ -30,13 +30,13 @@ export default class Search extends Component {
     this.appList = null;
     this.search = '';
   }
-  handleKeydown(e) {
+  handleKeydown = (e) => {
     if(e.key === 'Backspace' && this.props.onClose){
       e.preventDefault();
       this.props.onClose();
     }
   }
-  handleKeyup(e) {
+  handleKeyup = (e) => {
     if(e.key === 'Enter' && this.state.searchActive){
       this.updateKeywords();
     }
@@ -52,14 +52,12 @@ export default class Search extends Component {
   }
   componentDidMount() {
     this.activateSearch();
-    this.handleKeydown_bound = this.handleKeydown.bind(this);
-    this.handleKeyup_bound = this.handleKeyup.bind(this);
-    document.addEventListener('keydown', this.handleKeydown_bound);
-    document.addEventListener('keyup', this.handleKeyup_bound);
+    document.addEventListener('keydown', this.handleKeydown);
+    document.addEventListener('keyup', this.handleKeyup);
   }
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleKeydown_bound);
-    document.removeEventListener('keyup', this.handleKeyup_bound);
+    document.removeEventListener('keydown', this.handleKeydown);
+    document.removeEventListener('keyup', this.handleKeyup);
   }
   render() {
     if(!this.appList){
@@ -67,8 +65,9 @@ export default class Search extends Component {
         <AppList
           store={this.props.store}
           filters={{keywords: this.state.keywords}}
+          useFocus={true}
           canNavigateUp={true}
-          onNavigateUp={this.activateSearch.bind(this)}
+          onNavigateUp={() => this.activateSearch()}
         /> :
         <div className='SearchPlaceholder p-pri'>
           Please enter a search term

@@ -64,13 +64,14 @@ class SoftKeyButton extends Component {
 export default class SoftKey extends Component {
   constructor(props) {
     super(props);
-    this.keyboardReceiver = props.keyboardReceiver || document;
   }
-  handleKeyDown(e) {
+  handleKeyDown = (e) => {
     switch(e.key){
+      case '<':
       case 'SoftLeft':
         if(this.props.leftCallback) this.props.leftCallback();
         break;
+      case '>':
       case 'SoftRight':
         if(this.props.rightCallback) this.props.rightCallback();
         break;
@@ -78,17 +79,18 @@ export default class SoftKey extends Component {
         if(this.props.centerCallback) this.props.centerCallback();
         break;
       default:
-        break;
+        return;
     }
+    /* if this event was received by this softkey, other softkeys in parent
+     * receivers should not get it */
+    e.stopPropagation();
   }
   componentDidMount() {
-    this.handleKeyDown_bound = this.handleKeyDown.bind(this);
-    this.keyboardReceiver.addEventListener('keydown',
-      this.handleKeyDown_bound);
+    this.keyboardReceiver = this.props.keyboardReceiver || document;
+    this.keyboardReceiver.addEventListener('keydown', this.handleKeyDown);
   }
   componentWillUnmount() {
-    this.keyboardReceiver.removeEventListener('keydown',
-      this.handleKeyDown_bound);
+    this.keyboardReceiver.removeEventListener('keydown', this.handleKeyDown);
   }
   render() {
     return (

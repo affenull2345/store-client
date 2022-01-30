@@ -14,43 +14,28 @@
  * limitations under the License.
  */
 import { Component } from 'inferno';
-import { findDOMNode } from 'inferno-extras';
-import scrollIntoView from 'smooth-scroll-into-view-if-needed';
+import Focus from './ui/Focus';
 import AppButton from './AppButton';
 import './AppList.css';
-
-function focusIntoView(ref){
-  var node = findDOMNode(ref);
-  node.focus();
-  scrollIntoView(node, {
-    behavior: 'smooth',
-    block: 'center',
-    inline: 'start',
-    duration: 600
-  });
-}
 
 export default class AppList extends Component {
   constructor(props) {
     super(props);
     this.apps = [];
-    this.appRefs = [];
     this.state = {
       loading: false,
       loadedPages: 0,
       isLastPage: false,
       selected: 0
     };
-    this.scrolling = Promise.resolve();
     this.savedFilters = props.filters;
   }
-  handleKeydown(e) {
+  handleKeydown = (e) => {
     var idx = this.state.selected;
     if(e.key === 'ArrowUp'){
       e.preventDefault();
       idx--;
       if(idx >= 0){
-        if(this.appRefs[idx]) focusIntoView(this.appRefs[idx]);
         this.setState({
           selected: idx
         });
@@ -67,7 +52,6 @@ export default class AppList extends Component {
       idx++;
       if(!this.state.loading){
         if(idx < this.apps.length){
-          if(this.appRefs[idx]) focusIntoView(this.appRefs[idx]);
           this.setState({
             selected: idx
           });
@@ -84,11 +68,10 @@ export default class AppList extends Component {
     }
   }
   componentDidMount() {
-    this.handleKeydown_bound = this.handleKeydown.bind(this);
-    document.addEventListener('keydown', this.handleKeydown_bound);
+    document.addEventListener('keydown', this.handleKeydown);
   }
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleKeydown_bound);
+    document.removeEventListener('keydown', this.handleKeydown);
   }
   loadNextPage(after) {
     const nextPage = this.state.loadedPages + 1;
@@ -101,8 +84,6 @@ export default class AppList extends Component {
         loadedPages: nextPage,
         isLastPage
       });
-      if(this.appRefs[this.state.selected])
-        focusIntoView(this.appRefs[this.state.selected]);
     }).catch(e => {
       console.error('Failed to load next page', e);
       setTimeout(() => {
@@ -137,10 +118,17 @@ export default class AppList extends Component {
     }
     return this.apps.map((app, i) => {
       return (
-        <AppButton
-          app={app}
-          ref={node => this.appRefs[i] = node}
-        />
+        <Focus
+          isActive={this.props.useFocus && this.state.selected === i}
+          settings={{
+            behavior: 'smooth',
+            block: 'center',
+            inline: 'start',
+            duration: 600
+          }}
+        >
+          <AppButton app={app} />
+        </Focus>
       );
     });
   }
