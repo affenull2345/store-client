@@ -161,7 +161,7 @@ class BHackersV2App extends StoreApp {
               reportProgress('Downloading', Math.floor(loaded/total*100));
             });
       }
-      countDownload(this.ratings, this._data.slug);
+      countDownload(this.ratings, this._data.slug.toLowerCase());
       this._downloadCount++;
       return {args: [await this.blobPromise, this._data.slug]};
     }];
@@ -259,8 +259,8 @@ export default class BHackersV2Store extends AppStore {
     });
     if(filter.categories && filter.categories[0].id === '$popular'){
       filteredSet.sort((a, b) => {
-        return (this._data.downloadCount[b.slug] || 0) -
-          (this._data.downloadCount[a.slug] || 0);
+        return (this._data.downloadCount[b.slug.toLowerCase()] || 0) -
+          (this._data.downloadCount[a.slug.toLowerCase()] || 0);
       });
     }
     if(filter.keywords){
@@ -272,7 +272,7 @@ export default class BHackersV2Store extends AppStore {
         .map(app => new BHackersV2App(
           this.ratings,
           app,
-          this._data.downloadCount[app.slug],
+          this._data.downloadCount[app.slug.toLowerCase()],
           this._data.version
         )),
       isLastPage: start+count >= filteredSet.length
