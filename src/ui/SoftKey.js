@@ -62,9 +62,6 @@ class SoftKeyButton extends Component {
 }
 
 export default class SoftKey extends Component {
-  constructor(props) {
-    super(props);
-  }
   handleKeyDown = (e) => {
     switch(e.key){
       case '<':
