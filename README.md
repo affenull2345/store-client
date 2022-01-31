@@ -7,18 +7,24 @@ This is an app store client for the
 This store client supports multiple installation backends, using self-debug
 and falling back to OmniSD's method.
 
-Although it uses self-debugging, I've heard reports that this app does not work
-on KaiOS 2.5.4 and 2.5.2.2. Since I do not have a device with those KaiOS
-versions, I cannot confirm this bug and find out the cause.
+## Reporting issues
+If you don't want to use GitLab, you can report them on GitHub:
+<https://github.com/affenull2345/store-client/issues>
 
-I've also heard reports that installation from KaiStore does not work. Again,
-I can't confirm this because it works on my Nokia 8110 4G.
+Otherwise, report them here on GitLab.
 
 ## Known issues
  - Not all apps from KaiStore are recognized as installed because KaiStore
    does not provide the `origin` field in their generated update manifest.
  - If you can't exit the search page, clear the input box, press Enter and
    try exiting again.
+
+Although it uses self-debugging, I've heard reports that this app does not work
+on KaiOS 2.5.4 and 2.5.2.2. Since I do not have a device with those KaiOS
+versions, I cannot confirm this bug and find out the cause.
+
+I've also heard reports that installation from KaiStore does not work. Again,
+I can't confirm this because it works on my Nokia 8110 4G.
 
 ## Backends:
 
