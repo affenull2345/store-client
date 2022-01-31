@@ -14,17 +14,16 @@ If you don't want to use GitLab, you can report them on GitHub:
 Otherwise, report them here on GitLab.
 
 ## Known issues
+ - Installation hangs when you are connected to PC via WebIDE. Please disconnect
+   USB if you need to install an app.
  - Not all apps from KaiStore are recognized as installed because KaiStore
    does not provide the `origin` field in their generated update manifest.
  - If you can't exit the search page, clear the input box, press Enter and
    try exiting again.
 
 Although it uses self-debugging, I've heard reports that this app does not work
-on KaiOS 2.5.4 and 2.5.2.2. Since I do not have a device with those KaiOS
+on KaiOS 2.5.2.2. Since I do not have a device with those KaiOS
 versions, I cannot confirm this bug and find out the cause.
-
-I've also heard reports that installation from KaiStore does not work. Again,
-I can't confirm this because it works on my Nokia 8110 4G.
 
 ## Backends:
 
