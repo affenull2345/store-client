@@ -117,28 +117,28 @@ export default class Requester {
             ));
         }
         xhr.onload = function(){
-          var msg = '';
-          if(xhr.status !== 200 && xhr.status !== 201 && xhr.status !== 204){
-            if(xhr.responseText){
-              try {
-                var error = JSON.parse(xhr.responseText);
-                msg = ' ' + error.desc + ': ' + error.cause;
-              } catch(e) {
-                msg = ' ' + xhr.responseText;
+          try {
+            var msg = '';
+            if(xhr.status !== 200 && xhr.status !== 201 && xhr.status !== 204){
+              if(xhr.responseText){
+                try {
+                  var error = JSON.parse(xhr.responseText);
+                  msg = ' ' + error.desc + ': ' + error.cause;
+                } catch(e) {
+                  msg = ' ' + xhr.responseText;
+                }
               }
+              reject(`request error ${xhr.status}: ${xhr.statusText} ${msg}`);
             }
-            reject('request error ' + xhr.status + ': ' + xhr.statusText + msg);
-          }
-          if(req.type === 'json'){
-            try {
+            if(req.type === 'json'){
               resolve(JSON.parse(xhr.responseText));
             }
-            catch(e){
-              reject(e);
+            else {
+              resolve(xhr.response);
             }
           }
-          else {
-            resolve(xhr.response);
+          catch(e) {
+            reject(e);
           }
         }
         xhr.send(payload);
