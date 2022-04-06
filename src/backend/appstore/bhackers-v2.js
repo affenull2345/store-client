@@ -153,6 +153,8 @@ class BHackersV2App extends StoreApp {
     return this._data.icon;
   }
   downloadPackage() {
+    if(this.blobPromise)
+      return this.blobPromise;
     return this.blobPromise = request(
       'GET', this._data.download.url, 'blob', null, null
     );

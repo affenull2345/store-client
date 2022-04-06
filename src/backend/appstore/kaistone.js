@@ -87,14 +87,15 @@ class KaiStoneApp extends StoreApp {
       });
     });
   }
-  downloadPackage() {
-    return this.blobPromise = this.requester.send({
+  async downloadPackage() {
+    if(this.blobPromise)
+      return await this.blobPromise;
+    return await (this.blobPromise = this.requester.send({
       method: 'GET',
       path: this._data.package_path ||
         (await this.loadManifest()).package_path,
-      type: 'blob',
-      reportProgress
-    });
+      type: 'blob'
+    }));
   }
   getInstallationMethod() {
     return ['installPackage', async (reportProgress) => {
@@ -131,6 +132,8 @@ class KaiStoneApp extends StoreApp {
 
 export default class KaiStone extends AppStore {
   constructor(server='https://api.kaiostech.com', name='KaiStone (KaiStore)') {
+    super();
+    this.name = name;
     this.settings = {
       dev: {
         model: 'GoFlip2',
@@ -190,7 +193,8 @@ export default class KaiStone extends AppStore {
     var path = '/kc_ksfe/v1.0/apps';
     if(Array.isArray(filter.keywords)){
       isSearch = true;
-      path = 'https://search.kaiostech.com/v3/_search';
+      path =
+        `${this.settings.api.server.url.replace('api', 'search')}/v3/_search`;
     }
     path += '?bookmark=false';
     path += '&imei=' + this.settings.dev.imei;

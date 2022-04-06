@@ -46,6 +46,7 @@ export default class AppView extends Component {
 
     this.installedApp.uninstall().then(() => {
       this.setState({
+        downloading: false,
         status: 'Uninstalled',
         installState: 'not-installed'
       });
@@ -74,8 +75,18 @@ export default class AppView extends Component {
     });
   }
   download() {
+    this.setState({ downloading: true });
     this.props.app.downloadPackage().then((blob) => {
-      window.location.assign(URL.createObjectURL(blob));
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const nonalpha = /\W/g;
+      a.download = `${this.props.app.name.replace(nonalpha, '_')}.zip`;
+      a.dispatchEvent(new MouseEvent('click'));
+      this.setState({ downloading: false });
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+      }, 1000);
     });
   }
   handleKeyDown(e) {
@@ -166,7 +177,7 @@ export default class AppView extends Component {
           <AppDetail app={this.props.app} />
         </div>
         <SoftKey
-          leftText='Download'
+          leftText={this.state.downloading ? 'Saving' : 'Save'}
           centerText={
             this.state.locked ? '' :
             this.state.installState === 'installed' ? 'Open' :
@@ -178,7 +189,7 @@ export default class AppView extends Component {
             this.state.installState === 'checking' ? 'Checking...' :
             'Uninstall'
           }
-          leftCallback={() => this.download()}
+          leftCallback={() => !this.state.downloading && this.download()}
           centerCallback={
             this.state.locked ? null :
             this.state.installState === 'installed' ? this.open.bind(this) :
