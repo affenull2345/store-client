@@ -111,15 +111,17 @@ class KaiStoneApp extends StoreApp {
       return {args: [
         this._data.manifest_url,
         await this.blobPromise,
-        this._data.id
+        null, //this._data.id
       ]};
     }];
   }
   getIdentificationMethod() {
     return ['checkInstalled', async () => {
+      const manifest = await this.loadManifest();
       return {args: [
         this._data.manifest_url,
-        (await this.loadManifest()).origin || this._data.id
+        this._data.type === 'web' && (manifest.origin || this._data.id),
+        manifest.name
       ]};
     }];
   }

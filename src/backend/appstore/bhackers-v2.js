@@ -170,7 +170,8 @@ class BHackersV2App extends StoreApp {
       }
       countDownload(this.ratings, this._data.slug.toLowerCase());
       this._downloadCount++;
-      return {args: [await this.blobPromise, this._data.slug]};
+      const manifest = await this.loadManifest();
+      return {args: [await this.blobPromise, manifest.origin]};
     }];
   }
   getIdentificationMethod() {
@@ -184,8 +185,11 @@ class BHackersV2App extends StoreApp {
       }];
     }
     return ['checkInstalled', async () => {
-      return {args: [this._data.download.manifest,
-        (await this.loadManifest()).origin || this._data.slug
+      const manifest = await this.loadManifest();
+      return {args: [
+        this._data.download.manifest,
+        manifest.type === 'web' && (manifest.origin || this._data.slug),
+        manifest.name
       ]};
     }];
   }

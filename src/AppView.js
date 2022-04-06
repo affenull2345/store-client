@@ -57,22 +57,26 @@ export default class AppView extends Component {
       status: 'Installing',
       locked: true
     });
-    installApp(this.props.app, (stage, progress) => {
-      this.setState({
-        status: 'number' === typeof progress ? `${stage} (${progress}%)` : stage
+    installApp(this.props.app,
+      this.installedApp ? this.installedApp.idHint : undefined,
+      (stage, progress) => {
+        this.setState({
+          status: 'number' === typeof progress
+            ? `${stage} (${progress}%)`
+            : stage
+        });
+      }).then(() => {
+        this.setState({
+          status: 'Installed!',
+          locked: false
+        });
+      }).catch(err => {
+        alert('While installing app: ' + err);
+        this.setState({
+          status: 'Failed',
+          locked: false
+        });
       });
-    }).then(() => {
-      this.setState({
-        status: 'Installed!',
-        locked: false
-      });
-    }).catch(err => {
-      alert('While installing app: ' + err);
-      this.setState({
-        status: 'Failed',
-        locked: false
-      });
-    });
   }
   download() {
     this.setState({ downloading: true });

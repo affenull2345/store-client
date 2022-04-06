@@ -154,28 +154,22 @@ class SelfDebugInstaller extends Installer {
       });
     });
   }
-  installPackage(manifestURL, pkg, idHint){
+  installPackage(installedId, manifestURL, pkg, idHint){
     if(!this.loading){
       this.load();
     }
     return this.loading.then(interfaces => {
-      var id = '{' + idHint + '}';
-      return extractManifest(pkg).then(manifest => {
-        if(manifest.origin){
-          var url = new URL(manifest.origin);
-          id = url.host;
-        }
-        return new Promise((resolve, reject) => {
-          console.log(`[self-debug] appId=${id}, installing`, pkg);
-          blobToBuffer(pkg, (err, buf) => {
-            if(err) reject(err);
-            interfaces.webapps.installPackaged(buf, id, e => {
-              interfaces.webapps.close(`app://${id}/manifest.webapp`, e => {
-                if(e) console.info('Could not close app', e);
-              });
-              if(e) reject(e);
-              else resolve();
+      var id = idHint ? '{' + idHint + '}' : installedId;
+      return new Promise((resolve, reject) => {
+        console.log(`[self-debug] appId=${id}, installing`, pkg);
+        blobToBuffer(pkg, (err, buf) => {
+          if(err) reject(err);
+          interfaces.webapps.installPackaged(buf, id, (e, appId) => {
+            interfaces.webapps.close(`app://${appId}/manifest.webapp`, e => {
+              if(e) console.info('Could not close app', e);
             });
+            if(e) reject(e);
+            else resolve();
           });
         });
       });

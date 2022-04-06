@@ -20,7 +20,7 @@ const installers = [
 
 export { installers };
 
-export default async function installApp(app, progress){
+export default async function installApp(app, installedId, progress){
   let error = new Error('No installers found');
   let [method, loader] = app.getInstallationMethod();
   for(let i = 0; i < installers.length; i++){
@@ -35,7 +35,7 @@ export default async function installApp(app, progress){
       progress(`Installing [${installers[i].name}]` +
         (installers[i].name === 'self-debug' ?
         ' - be patient!' : ''));
-      return await installers[i][method].apply(installers[i], result.args);
+      return await installers[i][method](installedId, ...result.args);
     } catch(e) {
       console.error('Install error', e);
       error = e;

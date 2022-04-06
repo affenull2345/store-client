@@ -16,14 +16,14 @@
 import { pack, unpack, extractManifest } from './pkgutils';
 
 class Installer {
-  importPackage(pkg, idHint, calledFromImplementation) {
+  importPackage(installedId, pkg, idHint, calledFromImplementation) {
     if(calledFromImplementation){
       return Promise.reject(
         new Error('This installer cannot import apps'));
     }
     return unpack(pkg).then(unpacked => {
-      return this.installPackage(unpacked.manifestURL, unpacked.pkg, idHint,
-        true);
+      return this.installPackage(installedId,
+        unpacked.manifestURL, unpacked.pkg, idHint, true);
     });
   }
   async checkImported(pkg, idHint, calledFromImplementation) {
@@ -34,13 +34,13 @@ class Installer {
     return this.checkInstalled(unpacked.manifestURL, idHint, true) ||
       this.checkInstalledByOrigin((await extractManifest(unpacked.pkg)).origin);
   }
-  installPackage(manifestURL, pkg, idHint, calledFromImplementation) {
+  installPackage(installedId, manifestURL, pkg, idHint, calledFromImplementation) {
     if(calledFromImplementation){
       return Promise.reject(
         new Error('This installer cannot install packages'));
     }
     return pack({manifestURL, pkg}).then(packed => {
-      return this.importPackage(packed.pkg, idHint, true);
+      return this.importPackage(installedId, packed.pkg, idHint, true);
     });
   }
   installHosted(manifestURL) {

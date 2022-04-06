@@ -62,10 +62,14 @@ class MozAppsImportedApp extends InstalledApp {
   get version() {
     return this._mozApp.manifest.version;
   }
+  get idHint() {
+    const prefix = /^app:\/\//;
+    return this._mozApp.origin.replace(prefix, '');
+  }
 }
 
 class MozAppsImportInstaller extends Installer {
-  importPackage(pkg, idHint){
+  importPackage(installedId, pkg, idHint){
     return navigator.mozApps.mgmt.import(pkg).then(app => {
       return Promise.resolve();
     }).catch(e => {
@@ -86,13 +90,17 @@ class MozAppsImportInstaller extends Installer {
       }
     });
   }
-  checkInstalled(manifest_url, idHint){
+  checkInstalled(manifest_url, idHint, displayName){
     return cachedGetAll().then(all => {
+      const uuid_origin
+        = /^app:\/\/\{[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}\}/;
       for(const app of all){
         if(app.manifestURL === manifest_url ||
           app.manifestURL === `app://{${idHint}}/manifest.webapp` ||
           app.origin === `app://{${idHint}}` ||
-          app.origin === idHint)
+          app.origin === idHint ||
+          ((uuid_origin.test(app.origin) || !idHint)
+            && app.manifest && app.manifest.name === displayName))
         {
           return Promise.resolve(new MozAppsImportedApp(app));
         }
