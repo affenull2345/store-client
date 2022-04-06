@@ -1,3 +1,5 @@
 .select-popup-container {
+  max-height: 50vh;
+  overflow: hidden;
   background: white;
 }
