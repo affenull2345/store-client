@@ -98,7 +98,12 @@ export default class AppView extends Component {
     let node = null;
     switch(e.key){
       case 'Backspace':
-        if(!this.state.locked && this.props.onClose){
+        if(this.state.locked){
+          if(window.confirm('Abort installation?')){
+            window.location.reload();
+          }
+        }
+        else if(this.props.onClose){
           this.props.onClose();
         }
         break;
