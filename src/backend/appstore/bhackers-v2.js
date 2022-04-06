@@ -152,6 +152,11 @@ class BHackersV2App extends StoreApp {
   findIcon(size) {
     return this._data.icon;
   }
+  downloadPackage() {
+    return this.blobPromise = request(
+      'GET', this._data.download.url, 'blob', null, null
+    );
+  }
   getInstallationMethod() {
     return ['importPackage', async (reportProgress) => {
       if(!this.blobPromise){

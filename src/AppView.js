@@ -73,7 +73,11 @@ export default class AppView extends Component {
       });
     });
   }
-
+  download() {
+    this.props.app.downloadPackage().then((blob) => {
+      window.location.assign(URL.createObjectURL(blob));
+    });
+  }
   handleKeyDown(e) {
     // A modal should intercept all keys received, to avoid
     // having them handled by other components
@@ -162,7 +166,7 @@ export default class AppView extends Component {
           <AppDetail app={this.props.app} />
         </div>
         <SoftKey
-          leftText=''
+          leftText='Download'
           centerText={
             this.state.locked ? '' :
             this.state.installState === 'installed' ? 'Open' :
@@ -174,6 +178,7 @@ export default class AppView extends Component {
             this.state.installState === 'checking' ? 'Checking...' :
             'Uninstall'
           }
+          leftCallback={() => this.download()}
           centerCallback={
             this.state.locked ? null :
             this.state.installState === 'installed' ? this.open.bind(this) :

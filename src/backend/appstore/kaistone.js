@@ -117,6 +117,15 @@ class KaiStoneApp extends StoreApp {
       });
     });
   }
+  downloadPackage() {
+    return this.blobPromise = this.requester.send({
+      method: 'GET',
+      path: this._data.package_path ||
+        (await this.loadManifest()).package_path,
+      type: 'blob',
+      reportProgress
+    });
+  }
   getInstallationMethod() {
     return ['installPackage', async (reportProgress) => {
       if(!this.blobPromise){
