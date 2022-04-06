@@ -37,6 +37,8 @@ export default class Store extends Component {
         'https://opengiraffes-rating.herokuapp.com',
       ], 'OpenGiraffes (China)'),
       new KaiStone(),
+      new KaiStone('https://api.stage.kaiostech.com', 'KaiStone stage'),
+      new KaiStone('https://api.test.kaiostech.com', 'KaiStone test'),
     ];
     this.state = {
       store: 0,

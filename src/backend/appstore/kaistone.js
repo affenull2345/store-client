@@ -23,36 +23,6 @@ function getKaiOSVersion(){
   else return '2.5.4';
 }
 
-const settings = {
-  dev: {
-    model: 'GoFlip2',
-    imei: '123456789012345',
-    type: 999999,
-    brand: 'AlcatelOneTouch',
-    os: 'KaiOS',
-    version: getKaiOSVersion(),
-    ua: 'Mozilla/5.0 (Mobile; GoFlip2; rv:48.0) Gecko/48.0 Firefox/48.0 KAIOS/'+
-      getKaiOSVersion(),
-    cu: '4044O-2BAQUS1-R',
-    mcc: '0',
-    mnc: '0'
-  },
-  api: {
-    app: {
-      id: 'CAlTn_6yQsgyJKrr-nCh',
-      name: 'KaiOS Plus',
-      ver: '2.5.4'
-    },
-    server: {
-      url: 'https://api.kaiostech.com'
-    },
-    ver: '3.0'
-  },
-  auth: {
-    method: 'api-key',
-    key: 'baJ_nea27HqSskijhZlT'
-  }
-};
 
 class KaiStoneApp extends StoreApp {
   constructor(data, requester){
@@ -160,11 +130,43 @@ class KaiStoneApp extends StoreApp {
 }
 
 export default class KaiStone extends AppStore {
+  constructor(server='https://api.kaiostech.com', name='KaiStone (KaiStore)') {
+    this.settings = {
+      dev: {
+        model: 'GoFlip2',
+        imei: '123456789012345',
+        type: 999999,
+        brand: 'AlcatelOneTouch',
+        os: 'KaiOS',
+        version: getKaiOSVersion(),
+        ua: 'Mozilla/5.0 (Mobile; GoFlip2; rv:48.0) '
+          + 'Gecko/48.0 Firefox/48.0 KAIOS/' + getKaiOSVersion(),
+        cu: '4044O-2BAQUS1-R',
+        mcc: '0',
+        mnc: '0'
+      },
+      api: {
+        app: {
+          id: 'CAlTn_6yQsgyJKrr-nCh',
+          name: 'KaiOS Plus',
+          ver: '2.5.4'
+        },
+        server: {
+          url: server
+        },
+        ver: '3.0'
+      },
+      auth: {
+        method: 'api-key',
+        key: 'baJ_nea27HqSskijhZlT'
+      }
+    };
+  }
   load() {
     return this.loadPromise || (
       this.loadPromise = new Promise((resolve, reject) => {
         this.requester = new Requester(
-          settings.auth, settings.api, settings.dev
+          this.settings.auth, this.settings.api, this.settings.dev
         );
         this.requester.onload = () => {
           this.requester.send({
@@ -191,18 +193,18 @@ export default class KaiStone extends AppStore {
       path = 'https://search.kaiostech.com/v3/_search';
     }
     path += '?bookmark=false';
-    path += '&imei=' + settings.dev.imei;
+    path += '&imei=' + this.settings.dev.imei;
     if(isSearch){
-      path += '&platform=' + settings.dev.version;
+      path += '&platform=' + this.settings.dev.version;
       path += '&page=' + Math.floor(start/count);
       path += '&size=' + count;
     }
     else {
-      path += '&os=' + settings.dev.version;
+      path += '&os=' + this.settings.dev.version;
       path += '&page_size=' + count;
       path += '&page_num=' + (1+Math.floor(start/count));
     }
-    path += '&mnc=' + settings.dev.mnc + '&mcc=' + settings.dev.mcc;
+    path += '&mnc=' + this.settings.dev.mnc + '&mcc=' + this.settings.dev.mcc;
     if(filter.categories && filter.categories.length > 0){
       if(filter.categories.length === 1)
         path += '&category=' + encodeURIComponent(filter.categories[0].code);
@@ -231,8 +233,5 @@ export default class KaiStone extends AppStore {
         isLastPage: isSearch ? data.page === data.total_pages-1 : data.last_page
       });
     });
-  }
-  get name() {
-    return 'KaiStore (KaiStone backend)';
   }
 }
