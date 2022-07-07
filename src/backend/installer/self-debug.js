@@ -15,7 +15,7 @@
  */
 import FirefoxClient from 'firefox-client';
 import blobToBuffer from 'blob-to-buffer';
-import { extractManifest } from '../pkgutils';
+//import { extractManifest } from '../pkgutils';
 import { Installer } from '../Installer';
 
 const token_alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_.";
@@ -27,16 +27,17 @@ const storage_1 = '/data/media';
 const storage_2 = '/sdcard';
 const debug_file = '/sdcard/store-self-debug.log';
 const daemon_init_cmd =
+  /* preparation block */
   `(mkdir -p ${daemon_base} && ` +
   `(cp ${storage_1}/tmp.${binary_name}.bin ${daemon_base}/${binary_name} || ` +
   `cp ${storage_2}/tmp.${binary_name}.bin ${daemon_base}/${binary_name}) && ` +
   `echo 'Copied daemon to ${daemon_base}/' && ` +
   `chmod 700 ${daemon_base}/${binary_name}) > ${debug_file} 2>&1; ` +
-  `(md5sum ${daemon_base}/${binary_name} | grep '^${binary_hash}' || ` +
-  `(echo 'Failed to verify daemon hash' > ${debug_file} && false)) &&` +
+  /* launch block */
   `${daemon_base}/${binary_name} 6000 /data/local/debugger-socket 127.0.0.1` +
   `>/dev/null </dev/null 2>/dev/null & ` +
-  `echo 'Started daemon'; `;
+  /* post-launch message */
+  `echo 'Started daemon' > ${debug_file}; `;
 
 function daemonInit(){
   return new Promise((resolve, reject) => {
@@ -46,7 +47,7 @@ Please manually follow the instructions at https://gitlab.com/affenull2345/kaios
 
 printf '${t}' > '${daemon_base}/${token_file}'
 
-If the problem persists, please contact affenull2345@gmail.com and mention your phone model, firmware version and KaiOS version.`);
+If the problem persists, please create an issue at https://gitlab.com/affenull2345/store-client and mention your phone model, firmware version and KaiOS version.`);
     }
     let token = "";
     for(let i = 0; i < 32; i++){
