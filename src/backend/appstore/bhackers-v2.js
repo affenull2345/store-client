@@ -66,7 +66,7 @@ async function countDownload(rating_servers, slug){
   }
 }
 
-async function loadSRSData(rating_servers, data){
+async function loadSRSData(rating_servers){
   const reg = /[^a-z]/g;
   const saveName = 'bhv2srs-' + rating_servers[0].replace(reg, '$');
   for(let srv of rating_servers){
@@ -74,8 +74,7 @@ async function loadSRSData(rating_servers, data){
       let response = await request('GET', srv + '/download_counter');
       let obj = JSON.parse(response);
       localStorage.setItem(saveName, response);
-      data.downloadCount = obj;
-      return data;
+      return obj;
     }
     catch(e) {
       console.error(`Server ${srv} failed with`, e);
@@ -83,19 +82,18 @@ async function loadSRSData(rating_servers, data){
   }
   const saved = localStorage.getItem(saveName);
   if(saved){
-    data.downloadCount = JSON.parse(saved);
-    return data;
+    return JSON.parse(saved);
   }
   throw new Error('Could not load SRS data');
 }
 
-async function loadData(servers, rating_servers){
+async function loadAppData(servers){
   for(let srv of servers){
     try {
       let response = await request('GET', srv + '/data.json', 'string', null);
       let obj = JSON.parse(response);
       localStorage.setItem('bhv2-save', response);
-      return await loadSRSData(rating_servers, obj);
+      return obj;
     }
     catch(e) {
       console.error(`Server ${srv} failed with`, e);
@@ -105,6 +103,20 @@ async function loadData(servers, rating_servers){
     return JSON.parse(localStorage.getItem('bhv2-save'));
   }
   throw new Error('Could not load data');
+}
+
+async function loadData(servers, rating_servers){
+  let data = await loadAppData(servers);
+  try {
+    data.downloadCount = await loadSRSData(rating_servers);
+  }
+  catch(e) {
+    console.error('SRS error', e);
+  }
+  if(!data.downloadCount){
+    data.downloadCount = {};
+  }
+  return data;
 }
 
 class BHackersV2App extends StoreApp {
