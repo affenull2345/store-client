@@ -25,6 +25,9 @@ Although it uses self-debugging, I've heard reports that this app does not work
 on KaiOS 2.5.2.2. Since I do not have a device with those KaiOS
 versions, I cannot confirm this bug and find out the cause.
 
+ - That might be fixed in 0.2.6: when the installation failed on 2.5.2.2,
+   the log contained errors about md5sum, which is no longer used now.
+
 ## Backends:
 
 ### Installation
