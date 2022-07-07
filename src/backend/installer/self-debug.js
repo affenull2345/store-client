@@ -20,7 +20,6 @@ import { Installer } from '../Installer';
 
 const token_alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_.";
 const binary_name = 'debug-forwarder';
-const binary_hash = '1d6a901d3237bfa56fdb8b85d593ed28';
 const daemon_base = '/data/local/service/debug-forwarder';
 const token_file = '.forwarder_token';
 const storage_1 = '/data/media';
